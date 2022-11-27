@@ -18,7 +18,12 @@ typedef struct
 } mh_stream_meta_t, *mh_stream_meta_p;
 
 
+//mh_result mh_create_stream_meta(mh_stream_meta_p meta, mh_int32_t capacity);
+//mh_result mh_destroy_stream_meta(mh_stream_meta_p meta);
 
+mh_bool_t mh_init_stream_meta(mh_stream_meta_p meta, mh_int32_t bufsize);
+mh_result mh_init_stream_meta2(mh_stream_meta_p *meta, mh_int32_t bufsize);
+mh_result mh_create_stream_meta(mh_stream_meta_p meta, mh_int32_t capacity);
 void mh_stream_main(const char *in);
 
 

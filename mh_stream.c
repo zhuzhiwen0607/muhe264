@@ -6,6 +6,7 @@
 #include "mh_stream.h"
 #include "mh_log.h"
 #include "mh_semantics.h"
+#include "mh_error.h"
 
 static mh_stream_meta_t g_stream_meta;
 
@@ -13,7 +14,59 @@ static mh_stream_meta_t g_stream_meta;
 static void mh_stream_consumer(const char *streambuf, const int bufsize);
 static void mh_stream_nal_unit();
 
-static mh_bool_t mh_init_stream_meta(mh_stream_meta_p meta, mh_int32_t bufsize)
+mh_result mh_create_stream_meta(mh_stream_meta_p *meta, mh_int32_t capacity)
+{
+//    if (meta)
+//        return MH_ERROR;
+
+    mh_new_stream_meta(meta);
+
+    mh_init_stream_meta(*meta, capacity);
+
+
+}
+
+mh_result mh_destroy_stream_meta(mh_stream_meta_p meta)
+{
+
+}
+
+static mh_result mh_new_stream_meta(mh_stream_meta_p *meta)
+{
+    if (*meta)
+        return MH_ERROR;
+
+    *meta = malloc(sizeof(mh_stream_meta_t));
+    memset(*meta, 0x00, sizeof(mh_stream_meta_t));
+
+    return MH_OK;
+}
+
+/*
+mh_result mh_create_stream_meta(mh_stream_meta_p *meta)
+{
+    if (*meta)
+        return MH_ERROR;
+
+    (*meta) = malloc(sizeof(mh_stream_meta_t));
+    memset(*meta, 0x00, sizeof(mh_stream_meta_t));
+
+}
+
+mh_result mh_init_stream_meta2(mh_stream_meta_p *meta, mh_int32_t bufsize)
+{
+    if (*meta)
+        return MH_ERROR;
+
+    (*meta) = malloc(sizeof(mh_stream_meta_t));
+    memset(*meta, 0x00, sizeof(mh_stream_meta_t));
+
+    (*meta)->bufsize = bufsize;
+    (*meta)->buf = malloc(bufsize);
+    memset((*meta)->buf, 0x00, bufsize);
+}
+*/
+mh_bool_t mh_init_stream_meta(mh_stream_meta_p meta, mh_int32_t bufsize)
 {
     if (!meta)
         return mh_false;

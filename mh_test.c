@@ -190,9 +190,57 @@ static void test_type()
     mh_info("---mh_test_type end-----");
 }
 
+//--------------------------stream test----------------------------
+#include "mh_stream.h"
+static void test_init_stream_meta()
+{
+//    mh_stream_meta_p meta = NULL;
 
+//    mh_create_stream_meta(meta, 16);
+
+//    mh_destroy_stream_meta(meta);
+
+    mh_stream_meta_t meta;
+    mh_init_stream_meta(&meta, 33);
+
+    mh_info("meta.cap=%d", meta.bufsize);
+
+
+    mh_stream_meta_p meta2 = malloc(sizeof(mh_stream_meta_t));
+
+    mh_init_stream_meta(meta2, 36);
+
+    mh_info("meta2.cap=%d", meta2->bufsize);
+
+//    mh_stream_meta_p meta3 = NULL;
+//    mh_create_stream_meta(&meta3);
+//    mh_init_stream_meta(meta3, 11);
+//    mh_info("meta3.cap=%d", meta3->bufsize);
+
+//    mh_stream_meta_p meta4 = NULL;
+//    mh_init_stream_meta2(&meta4, 17);
+//    mh_info("meta4.cap=%d", meta4->bufsize);
+
+    mh_stream_meta_p meta5 = NULL;
+    mh_create_stream_meta(&meta5, 9);
+    mh_info("meta5.cap=%d", meta5->bufsize);
+
+}
+
+
+static void test_stream()
+{
+    mh_info("---test_stream begin---");
+    test_init_stream_meta();
+
+    mh_info("---test_stream end-----");
+}
+
+
+//----------------------------test main-------------------------------
 void mh_test_main()
 {
 //    test_semantics();
-    test_type();
+//    test_type();
+    test_stream();
 }

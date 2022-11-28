@@ -10,10 +10,12 @@
 
 static mh_stream_meta_t g_stream_meta;
 
+static mh_stream_meta_p mh_stream_meta = NULL;
+
 
 static void mh_stream_consumer(const char *streambuf, const int bufsize);
 static void mh_stream_nal_unit();
-
+/*
 mh_result mh_create_stream_meta(mh_stream_meta_p *meta, mh_int32_t capacity)
 {
 //    if (meta)
@@ -26,9 +28,11 @@ mh_result mh_create_stream_meta(mh_stream_meta_p *meta, mh_int32_t capacity)
 
 }
 
-mh_result mh_destroy_stream_meta(mh_stream_meta_p meta)
+mh_result mh_destroy_stream_meta(mh_stream_meta_p *meta)
 {
+    mh_deinit_stream_meta(*meta);
 
+    mh_delete_stream_meta(meta);
 }
 
 static mh_result mh_new_stream_meta(mh_stream_meta_p *meta)
@@ -42,7 +46,18 @@ static mh_result mh_new_stream_meta(mh_stream_meta_p *meta)
     return MH_OK;
 }
 
-/*
+static mh_result mh_delete_stream_meta(mh_stream_meta_p *meta)
+{
+    if (!(*meta))
+        return MH_ERROR;
+
+    free(*meta);
+
+    *meta = NULL;
+
+    return MH_OK;
+}
+
 mh_result mh_create_stream_meta(mh_stream_meta_p *meta)
 {
     if (*meta)
@@ -66,24 +81,39 @@ mh_result mh_init_stream_meta2(mh_stream_meta_p *meta, mh_int32_t bufsize)
     memset((*meta)->buf, 0x00, bufsize);
 }
 */
-mh_bool_t mh_init_stream_meta(mh_stream_meta_p meta, mh_int32_t bufsize)
+mh_result_t mh_init_stream_meta(mh_stream_meta_p meta, mh_int32_t size)
 {
     if (!meta)
-        return mh_false;
+        return MH_ERROR_INVALID_PARAM;
 
-    memset(meta, 0, sizeof(*meta));
+    memset(meta, 0x00, sizeof(mh_stream_meta_t));
 
-    const int bufbytes = sizeof(mh_uint8_t) * bufsize;
-    meta->bufsize = bufbytes;
-    meta->buf = malloc(bufbytes);
-    if (!meta->buf)
-        return mh_false;
+    meta->buf = malloc(sizeof(mh_cycle_queue_t));
+    memset(meta->buf, 0x00, sizeof(mh_cycle_queue_t));
+    mh_cycle_queue_init(meta->buf, size);
 
-    memset(meta->buf, 0x00, bufbytes);
+    meta->nal_start = NULL;
+    meta->nal_end = NULL;
+    meta->p = meta->buf->base;
 
-    meta->p = meta->buf;
+    return MH_OK;
 
-    return mh_true;
+}
+
+mh_result_t mh_deinit_stream_meta(mh_stream_meta_p meta)
+{
+    if (!meta)
+        return MH_ERROR;
+
+    mh_cycle_queue_deinit(meta->buf);
+    free(meta->buf);
+
+    meta->buf = NULL;
+    meta->nal_start = NULL;
+    meta->nal_end = NULL;
+    meta->p = NULL;
+
+    return MH_OK;
 
 }
 
@@ -99,6 +129,7 @@ static mh_bool_t mh_reset_streammeta(mh_stream_meta_p meta, mh_int32_t append_bu
 
 static void mh_stream_consumer(const char *streambuf, const int bufsize)
 {
+    /*
     if (!streambuf)
     {
         mh_error("input param is null");
@@ -122,6 +153,7 @@ static void mh_stream_consumer(const char *streambuf, const int bufsize)
     mh_info("streambuf=%p, bufsize=%d, buf_offset=%d, new_bufsize=%d", streambuf, bufsize, buf_offset, new_bufsize);
 
     memcpy(g_stream_meta.buf + buf_offset, streambuf, bufsize);
+    */
 
     mh_stream_nal_unit();
 }
@@ -132,8 +164,9 @@ static void mh_stream_nal_unit()
 {
     const mh_uint8_t *base = g_stream_meta.buf;
     mh_uint8_t *p = g_stream_meta.p;
-    mh_int32_t streamsize = g_stream_meta.bufsize;
+//    mh_int32_t streamsize = g_stream_meta.bufsize;
 
+mh_int32_t streamsize = 0;
 
     // next_bits( 24 ) != 0x000001 && next_bits( 32 ) != 0x00000001
     while (!next_byte_equal(&g_stream_meta, 3, 0x000001) && !next_byte_equal(p, 4, 0x00000001))
@@ -188,6 +221,41 @@ static void mh_nal_unit()
 
 }
 
+mh_result_t mh_stream_loop_read(FILE *src, mh_stream_meta_p dst)
+{
+    if (!src || !dst)
+        return MH_ERROR;
+
+    mh_int32_t bufcap = dst->buf->capacity;
+
+    mh_int32_t freebytes = 0;
+    mh_int32_t readbytes = 0;
+    mh_uint8_t *readbuf = malloc(bufcap);
+    mh_bool_t done = mh_false;
+
+    do
+    {
+        memset(readbuf, 0x00, bufcap);
+        freebytes = mh_cycle_queue_notused(dst->buf);
+
+        readbytes = fread(readbuf, 1, freebytes, src);
+        if (readbytes < freebytes)
+        {
+            // eof
+
+            done = mh_true;
+        }
+
+        mh_cycle_queue_write(dst->buf, readbuf, readbytes);
+
+        // todo: begin to decode h.264 data readed from file
+        mh_stream_nal_unit();
+
+    } while (!done);
+
+
+}
+
 
 void mh_stream_main(const char *in)
 {
@@ -204,45 +272,11 @@ void mh_stream_main(const char *in)
         mh_error("fopen %s failed", in);
         return;
     }
-/*
-    char *streambuf = NULL;
-    const int bufsize = sizeof(char) * STREAM_BUF_SIZE;
-    streambuf = malloc(bufsize);
-    if (!streambuf)
-    {
-        mh_error("malloc streambuf failed");
-        return;
-    }
-*/
 
+    mh_stream_meta = malloc(sizeof(mh_stream_meta_t));
+    mh_init_stream_meta(&mh_stream_meta, STREAM_BUF_CAPACITY);
 
-    const int bufsize = sizeof(char) * STREAM_BUF_SIZE;
-    mh_init_stream_meta(&g_stream_meta, bufsize);
-
-    int readbytes = 0;
-    do
-    {
-//        memset(streambuf, 0, bufsize);
-
-//        readbytes = fread(streambuf, 1, STREAM_BUF_SIZE, infile);
-        if (readbytes < STREAM_BUF_SIZE)
-        {
-            // eof or error
-
-            break;
-        }
-        else
-        {
-//            mh_stream_nal_unit();
-        }
-    } while (readbytes > 0);
-
-
-
-
-
-
-//    free(streambuf);
+    mh_stream_loop_read(infile, &mh_stream_meta);
 
     fclose(infile);
 

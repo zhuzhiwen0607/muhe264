@@ -17,27 +17,28 @@ typedef unsigned int    mh_bool_t;
 #define mh_true         1
 #define mh_false        0
 
-typedef int             mh_result;
+typedef int             mh_result_t;
 
 // basic data struct
 typedef struct
 {
-    mh_uint8_t *buf;
+    mh_uint8_t *base;
+//    mh_uint8_t *buf;
     mh_uint8_t *start;
     mh_uint8_t *end;
-    mh_int32_t queuesize;
-    mh_int32_t usedsize;
+    mh_int32_t capacity;
+    mh_int32_t used;
 //    mh_bool_t (*init) (mh_int32_t);
 //    mh_bool_t (*deinit) ();
 //    mh_bool_t (*read) (mh_int32_t);
 //    mh_bool_t (*write) (mh_int32_t);
 }mh_cycle_queue_t, *mh_cycle_queue_p;
 
-mh_bool_t mh_cycle_queue_init(mh_cycle_queue_p queue, mh_int32_t queuesize);
-mh_bool_t mh_cycle_queue_deinit(mh_cycle_queue_p queue);
-mh_bool_t mh_cycle_queue_reset(mh_cycle_queue_p queue);
-mh_result mh_cycle_queue_write(mh_cycle_queue_p queue, mh_uint8_t *src, mh_int32_t wsize);
-mh_result mh_cycle_queue_read(mh_cycle_queue_p queue, mh_uint8_t *dst, mh_int32_t rsize);
-
+mh_result_t mh_cycle_queue_init(mh_cycle_queue_p queue, mh_int32_t capacity);
+mh_result_t mh_cycle_queue_deinit(mh_cycle_queue_p queue);
+mh_result_t mh_cycle_queue_reset(mh_cycle_queue_p queue);
+mh_result_t mh_cycle_queue_write(mh_cycle_queue_p queue, mh_uint8_t *src, mh_int32_t wsize);
+mh_result_t mh_cycle_queue_read(mh_cycle_queue_p queue, mh_uint8_t *dst, mh_int32_t rsize);
+mh_int32_t mh_cycle_queue_notused(mh_cycle_queue_p queue);
 
 #endif // MH_TYPE_H

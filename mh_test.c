@@ -142,7 +142,7 @@ static void test_cycle_queue()
         mh_cycle_queue_reset(&queue);
 
         mh_cycle_queue_write(&queue, input, input_len);
-        mh_result ret = mh_cycle_queue_write(&queue, input, input_len);
+        mh_result_t ret = mh_cycle_queue_write(&queue, input, input_len);
         if (ret == MH_ERROR_QUEUE_OVER_WRITE)
         {
             mh_info("testcase 4: ok");
@@ -158,7 +158,7 @@ static void test_cycle_queue()
         memset(output, 0x00, QUEUE_SIZE);
         mh_cycle_queue_reset(&queue);
         int readbytes = 5;
-        mh_result ret = mh_cycle_queue_read(&queue, output, readbytes);
+        mh_result_t ret = mh_cycle_queue_read(&queue, output, readbytes);
         if (ret == MH_ERROR_QUEUE_OVER_READ)
         {
             mh_info("testcase 5: ok");
@@ -200,17 +200,19 @@ static void test_init_stream_meta()
 
 //    mh_destroy_stream_meta(meta);
 
-    mh_stream_meta_t meta;
-    mh_init_stream_meta(&meta, 33);
+//    mh_stream_meta_t meta;
+//    mh_init_stream_meta(&meta, 33);
 
-    mh_info("meta.cap=%d", meta.bufsize);
+//    mh_info("meta.cap=%d", meta.bufsize);
 
 
-    mh_stream_meta_p meta2 = malloc(sizeof(mh_stream_meta_t));
+    mh_stream_meta_p meta = malloc(sizeof(mh_stream_meta_t));
 
-    mh_init_stream_meta(meta2, 36);
+    mh_init_stream_meta(meta, 1024);
 
-    mh_info("meta2.cap=%d", meta2->bufsize);
+    mh_info("meta.cap=%d", meta->buf->capacity);
+
+    mh_deinit_stream_meta(meta);
 
 //    mh_stream_meta_p meta3 = NULL;
 //    mh_create_stream_meta(&meta3);
@@ -221,9 +223,11 @@ static void test_init_stream_meta()
 //    mh_init_stream_meta2(&meta4, 17);
 //    mh_info("meta4.cap=%d", meta4->bufsize);
 
-    mh_stream_meta_p meta5 = NULL;
-    mh_create_stream_meta(&meta5, 9);
-    mh_info("meta5.cap=%d", meta5->bufsize);
+//    mh_stream_meta_p meta5 = NULL;
+//    mh_create_stream_meta(&meta5, 9);
+//    mh_info("meta5.cap=%d", meta5->bufsize);
+
+//    mh_destroy_stream_meta(&meta5);
 
 }
 

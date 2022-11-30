@@ -14,17 +14,17 @@ typedef struct
 //    mh_int32_t bufsize;
     mh_cycle_queue_p buf;
     mh_uint8_t *p;
-    mh_uint8_t *nal_start;
+    mh_uint8_t *nalustart;
 //    mh_uint8_t *nal_end;
-    mh_int32_t nal_size;
+    mh_int32_t nalusize;
 } mh_stream_meta_t, *mh_stream_meta_p;
 
 
 //mh_result mh_create_stream_meta(mh_stream_meta_p meta, mh_int32_t capacity);
 //mh_result mh_destroy_stream_meta(mh_stream_meta_p meta);
 
-mh_result_t mh_init_stream_meta(mh_stream_meta_p, mh_int32_t);
-mh_result_t mh_deinit_stream_meta(mh_stream_meta_p);
+//mh_result_t mh_init_stream_meta(mh_stream_meta_p, mh_int32_t);
+//mh_result_t mh_deinit_stream_meta(mh_stream_meta_p);
 
 void mh_stream_main(const char *in);
 

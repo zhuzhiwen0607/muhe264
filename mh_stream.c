@@ -82,7 +82,7 @@ mh_result mh_init_stream_meta2(mh_stream_meta_p *meta, mh_int32_t bufsize)
     memset((*meta)->buf, 0x00, bufsize);
 }
 */
-mh_result_t mh_init_stream_meta(mh_stream_meta_p meta, mh_int32_t size)
+mh_result_t mh_stream_meta_init(mh_stream_meta_p meta, mh_int32_t size)
 {
     if (!meta)
         return MH_ERROR_INVALID_PARAM;
@@ -93,16 +93,16 @@ mh_result_t mh_init_stream_meta(mh_stream_meta_p meta, mh_int32_t size)
     memset(meta->buf, 0x00, sizeof(mh_cycle_queue_t));
     mh_cycle_queue_init(meta->buf, size);
 
-    meta->nal_start = NULL;
+    meta->nalustart = NULL;
 //    meta->nal_end = NULL;
-    meta->nal_size = 0;
+    meta->nalusize = 0;
     meta->p = meta->buf->base;
 
     return MH_OK;
 
 }
 
-mh_result_t mh_deinit_stream_meta(mh_stream_meta_p meta)
+mh_result_t mh_stream_meta_deinit(mh_stream_meta_p meta)
 {
     if (!meta)
         return MH_ERROR;
@@ -111,8 +111,8 @@ mh_result_t mh_deinit_stream_meta(mh_stream_meta_p meta)
     free(meta->buf);
 
     meta->buf = NULL;
-    meta->nal_start = NULL;
-    meta->nal_size = 0;
+    meta->nalustart = NULL;
+    meta->nalusize = 0;
 //    meta->nal_end = NULL;
     meta->p = NULL;
 
@@ -211,14 +211,15 @@ static void mh_stream_nal_unit()
 
         // we must set STREAM_BUF_CAPACITY large enough to restore at least one NAL unit
         // set nal_start
-        mh_stream_meta->nal_start = buf->start;
+        mh_stream_meta->nalustart = buf->start;
+
 
         while (more_data_in_byte_stream(buf)
                && !next_bytes_equal(buf, 3, 0x000001)
                && !next_bytes_equal(buf, 4, 0x00000001))
         {
 
-            ++mh_stream_meta->nal_size;
+            ++mh_stream_meta->nalusize;
 
             if (mh_cycle_queue_more_bytes(buf) < 4)
             {
@@ -228,8 +229,22 @@ static void mh_stream_nal_unit()
         }
 
 
+        int ns = mh_stream_meta->nalusize;
+        mh_stream_meta->nalusize = 0;
+
         // parse nal unit
-        mh_nal_unit_main(mh_stream_meta->buf, mh_stream_meta->nal_start, mh_stream_meta->nal_size);
+        // copy
+        mh_nal_unit_p nal_unit = NULL;
+        mh_nal_unit_new(ns, &nal_unit);
+        mh_nal_unit_init(buf, ns, nal_unit);
+
+        // init nal_unit
+
+        // add nal_unit to mh_stream_meta
+
+//        mh_nal_unit_main(mh_stream_meta->buf, mh_stream_meta->nal_start, mh_stream_meta->nal_size);
+
+
 
     }
 
@@ -292,11 +307,16 @@ void mh_stream_main(const char *in)
     }
 
     mh_stream_meta = malloc(sizeof(mh_stream_meta_t));
-    mh_init_stream_meta(&mh_stream_meta, STREAM_BUF_CAPACITY);
+    mh_stream_meta_init(&mh_stream_meta, STREAM_BUF_CAPACITY);
 
     mh_stream_loop_read(infile);
 
     fclose(infile);
+
+    mh_stream_meta_deinit(&mh_stream_meta);
+
+    free(mh_stream_meta);
+    mh_stream_meta = NULL;
 
 }
 

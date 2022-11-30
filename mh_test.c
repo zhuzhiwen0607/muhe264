@@ -208,11 +208,11 @@ static void test_init_stream_meta()
 
     mh_stream_meta_p meta = malloc(sizeof(mh_stream_meta_t));
 
-    mh_init_stream_meta(meta, 1024);
+    mh_stream_meta_init(meta, 1024);
 
     mh_info("meta.cap=%d", meta->buf->capacity);
 
-    mh_deinit_stream_meta(meta);
+    mh_stream_meta_deinit(meta);
 
 //    mh_stream_meta_p meta3 = NULL;
 //    mh_create_stream_meta(&meta3);

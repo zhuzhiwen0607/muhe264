@@ -6,9 +6,10 @@
 #include "mh_stream.h"
 #include "mh_log.h"
 #include "mh_semantics.h"
+#include "mh_nal_unit.h"
 #include "mh_error.h"
 
-static mh_stream_meta_t g_stream_meta;
+//static mh_stream_meta_t g_stream_meta;
 
 static mh_stream_meta_p mh_stream_meta = NULL;
 
@@ -93,7 +94,8 @@ mh_result_t mh_init_stream_meta(mh_stream_meta_p meta, mh_int32_t size)
     mh_cycle_queue_init(meta->buf, size);
 
     meta->nal_start = NULL;
-    meta->nal_end = NULL;
+//    meta->nal_end = NULL;
+    meta->nal_size = 0;
     meta->p = meta->buf->base;
 
     return MH_OK;
@@ -110,7 +112,8 @@ mh_result_t mh_deinit_stream_meta(mh_stream_meta_p meta)
 
     meta->buf = NULL;
     meta->nal_start = NULL;
-    meta->nal_end = NULL;
+    meta->nal_size = 0;
+//    meta->nal_end = NULL;
     meta->p = NULL;
 
     return MH_OK;
@@ -126,7 +129,7 @@ static mh_bool_t mh_reset_streammeta(mh_stream_meta_p meta, mh_int32_t append_bu
 }
 
 
-
+#if 0
 static void mh_stream_consumer(const char *streambuf, const int bufsize)
 {
     /*
@@ -157,74 +160,89 @@ static void mh_stream_consumer(const char *streambuf, const int bufsize)
 
     mh_stream_nal_unit();
 }
+#endif
 
+//static void mh_stream_set_nal_start()
+//{
+//    mh_stream_meta->nal_start = mh_stream
+//}
+
+//static void mh_stream_set_nal_end()
+//{
+
+//}
 
 
 static void mh_stream_nal_unit()
 {
-    const mh_uint8_t *base = g_stream_meta.buf;
-    mh_uint8_t *p = g_stream_meta.p;
-//    mh_int32_t streamsize = g_stream_meta.bufsize;
+    mh_cycle_queue_p buf = mh_stream_meta->buf;
 
-mh_int32_t streamsize = 0;
-
-    // next_bits( 24 ) != 0x000001 && next_bits( 32 ) != 0x00000001
-    while (!next_byte_equal(&g_stream_meta, 3, 0x000001) && !next_byte_equal(p, 4, 0x00000001))
+    for (;;)
     {
-        leading_zero_8bits(p);
-        if (p + 4 - base > streamsize)
+        // next_bits( 24 ) != 0x000001 && next_bits( 32 ) != 0x00000001
+        while (!next_bytes_equal(buf, 3, 0x000001) && !next_bytes_equal(buf, 4, 0x00000001))
         {
-            mh_error("not a complete nal unit");
-            return;
+            leading_zero_8bits(buf);
+            if (mh_cycle_queue_more_bytes(buf) < 4)
+                return;
         }
-    }
 
-    /*
-    int i = 0;
-    while (// next_bits( 24 ) != 0x000001 && next_bits( 32 ) != 0x00000001
-           (cur[i] != 0x00 || cur[i+1] != 0x00 || cur[i+2] != 0x01)
-           && (cur[i] != 0x00 || cur[i+1] != 0x00 || cur[i+2] != 0x00 || cur[i+3] != 0x01))
-    {
-        ++i;    // leading_zero_8bits
-
-        if (i + 4 > streamsize)
+        /*
+        int i = 0;
+        while (// next_bits( 24 ) != 0x000001 && next_bits( 32 ) != 0x00000001
+               (cur[i] != 0x00 || cur[i+1] != 0x00 || cur[i+2] != 0x01)
+               && (cur[i] != 0x00 || cur[i+1] != 0x00 || cur[i+2] != 0x00 || cur[i+3] != 0x01))
         {
-            mh_info("not a complete nal unit");
-            return;
+            ++i;    // leading_zero_8bits
+
+            if (i + 4 > streamsize)
+            {
+                mh_info("not a complete nal unit");
+                return;
+            }
+        }*/
+
+        if (!next_bytes_equal(buf, 3, 0x000001))   // next_bits( 24 ) != 0x000001
+        {
+            zero_byte(buf);   // equal to 0x00
         }
-    }*/
 
-    if (!next_byte_equal(p, 3, 0x000001))   // next_bits( 24 ) != 0x000001
-    {
-        zero_byte(p);   // equal to 0x00
+        start_code_prefix_one_3bytes(buf);    // equal to 0x000001
+
+        // we must set STREAM_BUF_CAPACITY large enough to restore at least one NAL unit
+        // set nal_start
+        mh_stream_meta->nal_start = buf->start;
+
+        while (more_data_in_byte_stream(buf)
+               && !next_bytes_equal(buf, 3, 0x000001)
+               && !next_bytes_equal(buf, 4, 0x00000001))
+        {
+
+            ++mh_stream_meta->nal_size;
+
+            if (mh_cycle_queue_more_bytes(buf) < 4)
+            {
+                // not a compete nal unit, read data from file again
+                return;
+            }
+        }
+
+
+        // parse nal unit
+        mh_nal_unit_main(mh_stream_meta->buf, mh_stream_meta->nal_start, mh_stream_meta->nal_size);
+
     }
-
-    start_code_prefix_one_3bytes(p);    // equal to 0x000001
-
-    g_stream_meta.nal_start = p;
-
-    while (!next_byte_equal(p, 3, 0x000001) && !next_byte_equal(p, 4, 0x00000001))
-    {
-
-    }
-
-
-
-
-
-
 
 }
 
-static void mh_nal_unit()
-{
 
-}
 
-mh_result_t mh_stream_loop_read(FILE *src, mh_stream_meta_p dst)
+mh_result_t mh_stream_loop_read(FILE *src)
 {
-    if (!src || !dst)
+    if (!src)
         return MH_ERROR;
+
+    mh_stream_meta_p dst = mh_stream_meta;
 
     mh_int32_t bufcap = dst->buf->capacity;
 
@@ -236,7 +254,7 @@ mh_result_t mh_stream_loop_read(FILE *src, mh_stream_meta_p dst)
     do
     {
         memset(readbuf, 0x00, bufcap);
-        freebytes = mh_cycle_queue_notused(dst->buf);
+        freebytes = mh_cycle_queue_free_size(dst->buf);
 
         readbytes = fread(readbuf, 1, freebytes, src);
         if (readbytes < freebytes)
@@ -276,7 +294,7 @@ void mh_stream_main(const char *in)
     mh_stream_meta = malloc(sizeof(mh_stream_meta_t));
     mh_init_stream_meta(&mh_stream_meta, STREAM_BUF_CAPACITY);
 
-    mh_stream_loop_read(infile, &mh_stream_meta);
+    mh_stream_loop_read(infile);
 
     fclose(infile);
 

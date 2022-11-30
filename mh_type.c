@@ -5,15 +5,24 @@
 #include "mh_error.h"
 #include "mh_log.h"
 
-//static inline void cycle_queue_forward(mh_cycle_queue_p queue)
-//{
-//    if (!p)
-//        return;
 
-//    p = (p + 1) % qs;
-//}
+static inline mh_int32_t start_index(mh_cycle_queue_p queue)
+{
+    if (!queue)
+        return -1;
 
-// mh_cycle_queue
+    return (queue->start - queue->base);
+}
+
+static inline mh_int32_t end_index(mh_cycle_queue_p queue)
+{
+    if (!queue)
+        return -1;
+
+    return (queue->end - queue->base);
+}
+
+
 mh_result_t mh_cycle_queue_init(mh_cycle_queue_p queue, mh_int32_t capacity)
 {
     if (!queue)
@@ -27,6 +36,8 @@ mh_result_t mh_cycle_queue_init(mh_cycle_queue_p queue, mh_int32_t capacity)
     memset(queue->base, 0x00, capacity);
     queue->start = queue->base;
     queue->end = queue->base;
+//    queue->startpos = 0;
+//    queue->endpos = 0;
     queue->capacity = capacity;
     queue->used = 0;
 
@@ -164,7 +175,19 @@ mh_result_t mh_cycle_queue_read(mh_cycle_queue_p queue, mh_uint8_t *dst, mh_int3
     return MH_OK;
 }
 
-mh_int32_t mh_cycle_queue_notused(mh_cycle_queue_p queue)
+mh_int32_t mh_cycle_queue_more_bytes(mh_cycle_queue_p queue)
+{
+    if (!queue)
+        return -1;
+
+//    assert(queue->capacity >= queue->used);
+
+//    return (queue->capacity - queue->used);
+
+    return (queue->used);
+}
+
+mh_int32_t mh_cycle_queue_free_size(mh_cycle_queue_p queue)
 {
     if (!queue)
         return -1;
@@ -174,12 +197,35 @@ mh_int32_t mh_cycle_queue_notused(mh_cycle_queue_p queue)
     return (queue->capacity - queue->used);
 }
 
-mh_int8_t mh_cycle_queue_at(mh_cycle_queue_p queue, mh_int32_t idx)
+
+
+mh_uint8_t mh_cycle_queue_at(mh_cycle_queue_p queue, mh_int32_t i)
 {
+
     if (!queue)
         return -1;
 
-    idx = idx % queue->capacity;
+    if (i > queue->used)
+        return -1;
 
-    return queue->base[idx];
+    const mh_int32_t pos = (start_index(queue) + i) % queue->capacity;
+
+    return queue->base[pos];
+}
+
+mh_result_t mh_cycle_queue_forward(mh_cycle_queue_p queue, mh_int32_t i)
+{
+    if (!queue)
+        return MH_ERROR;
+
+    if (i > queue->used)
+        return MH_ERROR_QUEUE_OVER_READ;
+
+    const mh_int32_t pos = (start_index(queue) + i) % queue->capacity;
+
+    queue->start = queue->base + pos;
+
+    queue->used -= i;
+
+    return MH_OK;
 }

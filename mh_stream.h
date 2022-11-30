@@ -15,7 +15,8 @@ typedef struct
     mh_cycle_queue_p buf;
     mh_uint8_t *p;
     mh_uint8_t *nal_start;
-    mh_uint8_t *nal_end;
+//    mh_uint8_t *nal_end;
+    mh_int32_t nal_size;
 } mh_stream_meta_t, *mh_stream_meta_p;
 
 

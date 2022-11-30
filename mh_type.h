@@ -26,6 +26,9 @@ typedef struct
 //    mh_uint8_t *buf;
     mh_uint8_t *start;
     mh_uint8_t *end;
+
+//    mh_int32_t startpos;
+//    mh_int32_t endpos;
     mh_int32_t capacity;
     mh_int32_t used;
 //    mh_bool_t (*init) (mh_int32_t);
@@ -34,11 +37,16 @@ typedef struct
 //    mh_bool_t (*write) (mh_int32_t);
 }mh_cycle_queue_t, *mh_cycle_queue_p;
 
+
+
 mh_result_t mh_cycle_queue_init(mh_cycle_queue_p queue, mh_int32_t capacity);
 mh_result_t mh_cycle_queue_deinit(mh_cycle_queue_p queue);
 mh_result_t mh_cycle_queue_reset(mh_cycle_queue_p queue);
 mh_result_t mh_cycle_queue_write(mh_cycle_queue_p queue, mh_uint8_t *src, mh_int32_t wsize);
 mh_result_t mh_cycle_queue_read(mh_cycle_queue_p queue, mh_uint8_t *dst, mh_int32_t rsize);
-mh_int32_t mh_cycle_queue_notused(mh_cycle_queue_p queue);
+mh_int32_t mh_cycle_queue_more_bytes(mh_cycle_queue_p queue);
+mh_int32_t mh_cycle_queue_free_size(mh_cycle_queue_p queue);
+mh_uint8_t mh_cycle_queue_at(mh_cycle_queue_p queue, mh_int32_t i);
+mh_result_t mh_cycle_queue_forward(mh_cycle_queue_p queue, mh_int32_t i);
 
 #endif // MH_TYPE_H

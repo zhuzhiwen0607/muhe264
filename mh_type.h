@@ -49,4 +49,15 @@ mh_int32_t mh_cycle_queue_free_size(mh_cycle_queue_p queue);
 mh_uint8_t mh_cycle_queue_at(mh_cycle_queue_p queue, mh_int32_t i);
 mh_result_t mh_cycle_queue_forward(mh_cycle_queue_p queue, mh_int32_t i);
 
+
+
+
+typedef struct
+{
+    mh_uint8_t *base;
+    mh_uint8_t *p;
+    mh_int32_t size;
+    mh_int32_t capacity;
+}mh_array_t, *mh_array_p;
+
 #endif // MH_TYPE_H

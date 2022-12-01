@@ -4,6 +4,8 @@
 #include "mh_semantics.h"
 #include "mh_error.h"
 
+//-----------------------stream semantics-------------------
+
 mh_bool_t next_bytes_equal(mh_cycle_queue_p q, mh_int32_t n, mh_uint32_t num)
 {
     if (!q)
@@ -95,11 +97,15 @@ mh_bool_t more_data_in_byte_stream(mh_cycle_queue_p q)
         return mh_false;
 }
 
-//leading_zero_8bits(mh_uint8_t *p)
-//{
-//    if (!p)
-//        return;
+//------------------------nal unit semantics-----------------
 
-//    ++p;
-//}
+mh_int32_t read_bits(mh_array_p a, mh_int32_t n)
+{
+    if (!a)
+        return -1;
+
+    return 0;
+}
+
+
 #endif // MH_SEMANTICS_C

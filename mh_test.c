@@ -18,7 +18,7 @@ static mh_bool_t test_next_byte_equal()
     mh_int32_t n1 = 4;
     mh_uint32_t bitnum = 0x00000001;
 
-    ret = next_byte_equal(p1, n1, bitnum);
+    ret = next_bytes_equal(p1, n1, bitnum);
     if (mh_true == ret)
     {
         mh_info("testcase 1: ok");
@@ -46,10 +46,38 @@ static mh_bool_t test_next_byte_equal()
 
 }
 
+
+static void test_read_bits()
+{
+    mh_info("test_read_bits begin...");
+
+
+    mh_array_t a = {0};
+    a.base = malloc(4);
+    a.bits_start = a.base;
+    a.bits_offset = 0;
+    a.size = 4;
+    a.capacity = 4;
+
+    // 0xFD 45 21 09
+    a.base[0] = 0x09;
+    a.base[1] = 0x21;
+    a.base[2] = 0x45;
+    a.base[3] = 0xFD;
+
+    read_bits(&a, 7);    // output bin(0001001) DEC(9)
+    read_bits(&a, 3);    // output bin(010) DEC(2)
+
+
+//    read_bits(&a, 9);     // output bin(100001001)  265
+
+}
+
 static void test_semantics()
 {
     mh_info("---mh_test_semantics begin---");
-    test_next_byte_equal();
+//    test_next_byte_equal();
+    test_read_bits();
 
     mh_info("---mh_test_semantics end-----");
 
@@ -241,10 +269,13 @@ static void test_stream()
 }
 
 
+
+
+
 //----------------------------test main-------------------------------
 void mh_test_main()
 {
-//    test_semantics();
+    test_semantics();
 //    test_type();
-    test_stream();
+//    test_stream();
 }

@@ -1,8 +1,10 @@
 #ifndef MH_SEMANTICS_C
 #define MH_SEMANTICS_C
 
+#include <assert.h>
 #include "mh_semantics.h"
 #include "mh_error.h"
+
 
 //-----------------------stream semantics-------------------
 
@@ -98,14 +100,47 @@ mh_bool_t more_data_in_byte_stream(mh_cycle_queue_p q)
 }
 
 //------------------------nal unit semantics-----------------
+static inline mh_uint8_t get_bit(mh_uint8_t x, mh_int8_t bit)
+{
+    assert(bit >= 0);
 
-mh_int32_t read_bits(mh_array_p a, mh_int32_t n)
+    return ((x & (0x01 << bit)) >> bit);
+}
+
+
+mh_uint32_t read_bits(mh_array_p a, mh_int32_t n)
 {
     if (!a)
         return -1;
 
+    mh_uint32_t r = 0;
+    mh_int32_t i = 0;
+    while (i < n)
+    {
+
+        const mh_int8_t offset = a->bits_offset;
+        const mh_uint8_t byte = *(a->bits_start);
+
+        mh_uint8_t bitval = get_bit(byte, offset);
+
+        r |= (bitval << i);
+
+        if (++(a->bits_offset) >= 8)
+        {
+            a->bits_offset = 0;
+            ++(a->bits_start);
+        }
+
+
+        ++i;
+    }
+
+    mh_info("output: r = %u", r);
+
     return 0;
 }
+
+
 
 
 #endif // MH_SEMANTICS_C

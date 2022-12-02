@@ -229,7 +229,7 @@ static void mh_stream_nal_unit()
         }
 
 
-        int ns = mh_stream_meta->nalusize;
+        mh_int32_t ns = mh_stream_meta->nalusize;
         mh_stream_meta->nalusize = 0;
 
         // parse nal unit

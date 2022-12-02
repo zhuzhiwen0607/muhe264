@@ -32,7 +32,7 @@ mh_result_t mh_nal_unit_new(mh_int32_t size, mh_nal_unit_p *nalu)
 
 }
 
-mh_result_t mh_nal_unit_init(mh_nal_unit_p nalu, mh_int32_t size)
+mh_result_t mh_nal_unit_init(mh_cycle_queue_p queue, mh_int32_t size, mh_nal_unit_p nalu)
 {
     if (!nalu)
         return MH_ERROR;
@@ -43,9 +43,14 @@ mh_result_t mh_nal_unit_init(mh_nal_unit_p nalu, mh_int32_t size)
     mh_array_p array = nalu->buf;
     array->base = malloc(size);
     memset(array->base, 0x00, size);
-    array->p = array->base;
+    array->bits_start = array->base;
+    array->bits_offset = 0;
     array->capacity = size;
     array->size = 0;
+
+    // copy bits frome queue to nalu
+    mh_cycle_queue_read(queue, array->base, size);
+    array->size = size;
 
     return MH_OK;
 }
@@ -60,6 +65,8 @@ mh_result_t mh_nal_unit_init(mh_cycle_queue_p queue, mh_int32_t size, mh_nal_uni
     nalu->size = size;
 }
 */
+
+
 
 mh_result_t mh_nal_unit_main(mh_nal_unit_p nalu)
 {

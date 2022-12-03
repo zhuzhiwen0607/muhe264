@@ -57,7 +57,7 @@ static void test_read_bits()
     a.bits_start = a.base;
     a.bits_offset = 0;
     a.size = 4;
-    a.capacity = 4;
+//    a.capacity = 4;
 
     // 0xFD 45 21 09
     a.base[0] = 0x09;
@@ -73,11 +73,35 @@ static void test_read_bits()
 
 }
 
+static void test_next_bits()
+{
+    mh_info("test_next_bits begin...");
+
+
+    mh_array_t a = {0};
+    a.base = malloc(4);
+    a.bits_start = a.base;
+    a.bits_size = 4 * 8;
+    a.bits_offset = 0;
+    a.size = 4;
+
+    // 0xFD 45 21 09
+    a.base[0] = 0x09;
+    a.base[1] = 0x21;
+    a.base[2] = 0x45;
+    a.base[3] = 0xFD;
+
+    next_bits(&a, 9);
+
+
+}
+
 static void test_semantics()
 {
     mh_info("---mh_test_semantics begin---");
 //    test_next_byte_equal();
-    test_read_bits();
+//    test_read_bits();
+    test_next_bits();
 
     mh_info("---mh_test_semantics end-----");
 

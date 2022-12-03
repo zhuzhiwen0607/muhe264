@@ -238,11 +238,13 @@ static void mh_stream_nal_unit()
         mh_nal_unit_new(ns, &nal_unit);
         mh_nal_unit_init(buf, ns, nal_unit);
 
-        // init nal_unit
+
 
         // add nal_unit to mh_stream_meta
 
-//        mh_nal_unit_main(mh_stream_meta->buf, mh_stream_meta->nal_start, mh_stream_meta->nal_size);
+
+        // do parse
+        mh_nal_unit_main(nal_unit);
 
 
 

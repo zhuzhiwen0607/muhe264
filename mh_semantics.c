@@ -117,6 +117,8 @@ mh_uint32_t read_bits(mh_array_p a, mh_int32_t n)
     mh_int32_t i = 0;
     while (i < n)
     {
+        ++(a->forward_bits);
+        assert(a->forward_bits <= a->bits_size);
 
         const mh_int8_t offset = a->bits_offset;
         const mh_uint8_t byte = *(a->bits_start);
@@ -131,13 +133,50 @@ mh_uint32_t read_bits(mh_array_p a, mh_int32_t n)
             ++(a->bits_start);
         }
 
-
         ++i;
     }
 
     mh_info("output: r = %u", r);
 
-    return 0;
+    return r;
+}
+
+mh_int32_t next_bits(mh_array_p a, mh_int32_t n)
+{
+    if (!a)
+        return -1;
+
+    if (n > a->bits_size - a->forward_bits)
+    {
+        return -1;
+    }
+
+    mh_int8_t offset = a->bits_offset;
+//    mh_uint8_t byte = *(a->bits_start);
+    mh_uint8_t *byte = a->bits_start;
+    mh_uint32_t r = 0;
+    mh_int32_t i = 0;
+    mh_int32_t nbyte = 0;
+    while (i < n)
+    {
+
+
+        mh_uint8_t bitval = get_bit(byte[nbyte], offset);
+
+        r |= bitval << i;
+
+        if (++offset >= 8)
+        {
+            offset = 0;
+            ++nbyte;
+        }
+
+        ++i;
+    }
+
+    mh_info("r = %u", r);
+
+    return r;
 }
 
 

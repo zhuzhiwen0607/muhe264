@@ -55,10 +55,12 @@ mh_result_t mh_cycle_queue_forward(mh_cycle_queue_p queue, mh_int32_t i);
 typedef struct
 {
     mh_uint8_t *base;
-    mh_uint8_t *bits_start;   // always point to a start position of a byte
-    mh_int8_t bits_offset;   // bitaligin + bitoffset is current bit postion
+    mh_uint8_t *bits_start;     // always point to a start position of a byte
+    mh_int8_t bits_offset;      // bits offset in a byte
+    mh_int32_t forward_bits;
+    mh_int32_t bits_size;
     mh_int32_t size;
-    mh_int32_t capacity;
+//    mh_int32_t capacity;
 }mh_array_t, *mh_array_p;
 
 #endif // MH_TYPE_H

@@ -18,6 +18,7 @@ mh_bool_t more_data_in_byte_stream(mh_cycle_queue_p q);
 
 //------------------------nal unit semantics-----------------
 mh_int32_t read_bits(mh_array_p a, mh_int32_t n);
+mh_int32_t next_bits(mh_array_p a, mh_int32_t n);
 
 
 #endif // MH_SEMANTICS_H

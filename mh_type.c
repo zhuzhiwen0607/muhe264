@@ -245,5 +245,5 @@ mh_result_t mh_array_deinit(mh_array_p array)
     array->bits_size = 0;
     array->bits_start = NULL;
     array->forward_bits = 0;
-    array->size = 0
+    array->size = 0;
 }

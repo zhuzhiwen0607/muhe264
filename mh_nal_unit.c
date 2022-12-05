@@ -71,7 +71,16 @@ mh_result_t mh_nal_unit_init(mh_cycle_queue_p queue, mh_int32_t size, mh_nal_uni
 }
 */
 
-static mh_result_t mh_nal_uint(mh_nal_unit_p nalu)
+static mh_result_t mh_rbsp_new(mh_uint8_t *rbsp, mh_int32_t size)
+{
+    // alloc from system (malloc)
+    rbsp = malloc(size);
+    memset(rbsp, 0x00, size);
+
+    // alloc from memory pool
+}
+
+static mh_result_t mh_nal_unit(mh_nal_unit_p nalu)
 {
     if (!nalu)
         return MH_ERROR;
@@ -82,6 +91,7 @@ static mh_result_t mh_nal_uint(mh_nal_unit_p nalu)
 
     mh_int32_t num_bytes_in_rbsp = 0;
     mh_int32_t nal_unit_header_bytes = 1;
+    mh_rbsp_new(nalu->rbsp_byte, nalu->buf->size);
 
     if (NAL_UNIT_TYPE_14 == nalu->nal_unit_type
             || NAL_UNIT_TYPE_20 == nalu->nal_unit_type
@@ -113,9 +123,20 @@ static mh_result_t mh_nal_uint(mh_nal_unit_p nalu)
         }
     }
 
-    for (int i = 0; i < nal_unit_header_bytes; i++)
+    // for (i = nalUnitHeaderBytes; i < NumBytesInNALunit; i++)
+    for (int i = nal_unit_header_bytes; i < nalu->buf->size; i++)
     {
-
+        if (i + 2 < nalu->buf->size && next_bits(nalu->buf, 24) == 0x000003)
+        {
+            nalu->rbsp_byte[num_bytes_in_rbsp++] = read_bits(nalu->buf, 8);
+            nalu->rbsp_byte[num_bytes_in_rbsp++] = read_bits(nalu->buf, 8);
+            i += 2;
+            // todo emulation_prevention_three_byte
+        }
+        else
+        {
+            nalu->rbsp_byte[num_bytes_in_rbsp++] = read_bits(nalu->buf, 8);
+        }
     }
 
 }
@@ -126,7 +147,7 @@ mh_result_t mh_nal_unit_main(mh_nal_unit_p nalu)
     if (!nalu)
         return MH_ERROR;
 
-    mh_nal_uint(nalu);
+    mh_nal_unit(nalu);
 
 
 

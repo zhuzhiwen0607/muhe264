@@ -50,6 +50,7 @@ typedef struct
     mh_uint8_t nal_unit_type : 5;
     mh_uint8_t svc_extension_flag : 1;
     mh_uint8_t avc_3d_extension_flag : 1;
+    mh_uint8_t *rbsp_byte;
 }mh_nal_unit_t, *mh_nal_unit_p;
 
 

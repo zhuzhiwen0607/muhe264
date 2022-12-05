@@ -59,7 +59,7 @@ typedef struct
     mh_int8_t bits_offset;      // bits offset in a byte
     mh_int32_t forward_bits;
     mh_int32_t bits_size;
-    mh_int32_t size;
+    mh_int32_t size;            // num bytes in nal unit
 //    mh_int32_t capacity;
 }mh_array_t, *mh_array_p;
 

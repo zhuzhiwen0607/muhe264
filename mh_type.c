@@ -5,7 +5,7 @@
 #include "mh_error.h"
 #include "mh_log.h"
 
-
+//----------------mh_cycle_queue----------------
 static inline mh_int32_t start_index(mh_cycle_queue_p queue)
 {
     if (!queue)
@@ -228,4 +228,22 @@ mh_result_t mh_cycle_queue_forward(mh_cycle_queue_p queue, mh_int32_t i)
     queue->used -= i;
 
     return MH_OK;
+}
+
+//--------------------mh_array_t-------------------
+mh_result_t mh_array_init(mh_array_p array, mh_int32_t capacity)
+{
+    memset(array, 0x00, sizeof(mh_array_t));
+    array->base = malloc(capacity);
+    memset(array->base, 0x00, capacity);
+}
+mh_result_t mh_array_deinit(mh_array_p array)
+{
+    free(array->base);
+    array->base = NULL;
+    array->bits_offset = 0;
+    array->bits_size = 0;
+    array->bits_start = NULL;
+    array->forward_bits = 0;
+    array->size = 0
 }

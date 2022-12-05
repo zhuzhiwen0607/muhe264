@@ -63,4 +63,7 @@ typedef struct
 //    mh_int32_t capacity;
 }mh_array_t, *mh_array_p;
 
+mh_result_t mh_array_init(mh_array_p array, mh_int32_t capacity);
+mh_result_t mh_array_deinit(mh_array_p array);
+
 #endif // MH_TYPE_H

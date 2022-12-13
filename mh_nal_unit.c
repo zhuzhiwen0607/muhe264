@@ -1,11 +1,18 @@
 
 #include <stdlib.h>
+#include <string.h>
 #include "mh_nal_unit.h"
 #include "mh_error.h"
 #include "mh_semantics.h"
 
 
 //static mh_nal_unit_p mh_nal_unit = NULL;
+
+static mh_result_t mh_rbsp_new(mh_uint8_t *rbsp, mh_int32_t size);
+static mh_result_t mh_nal_unit(mh_nal_unit_p nalu);
+static mh_result_t mh_seq_parameter_set_rbsp(mh_nal_unit_p nalu);
+static mh_result_t mh_seq_parameter_set_data(mh_nal_unit_p nalu);
+static mh_result_t mh_rbsp_tailing_bits();
 
 
 mh_result_t mh_nal_unit_new(mh_int32_t size, mh_nal_unit_p *nalu)
@@ -80,6 +87,8 @@ static mh_result_t mh_rbsp_new(mh_uint8_t *rbsp, mh_int32_t size)
 
     // alloc from memory pool
 }
+
+
 
 static mh_result_t mh_nal_unit(mh_nal_unit_p nalu)
 {
@@ -161,13 +170,31 @@ static mh_result_t mh_nal_unit(mh_nal_unit_p nalu)
     switch (nalu->nal_unit_type)
     {
         case NAL_UNIT_TYPE_7:
-
+        mh_seq_parameter_set_rbsp(nalu);
         break;
     }
 
 }
 
-static mh_result_t mh_seq_parameter_set_data()
+static mh_result_t mh_seq_parameter_set_rbsp(mh_nal_unit_p nalu)
+{
+    if (!nalu)
+        return MH_ERROR;
+
+    mh_seq_parameter_set_data(nalu);
+
+
+}
+
+static mh_result_t mh_seq_parameter_set_data(mh_nal_unit_p nalu)
+{
+    if (!nalu)
+        return MH_ERROR;
+
+
+}
+
+static mh_result_t mh_rbsp_tailing_bits()
 {
 
 }

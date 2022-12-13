@@ -25,7 +25,8 @@ typedef struct
 
 //mh_result_t mh_init_stream_meta(mh_stream_meta_p, mh_int32_t);
 //mh_result_t mh_deinit_stream_meta(mh_stream_meta_p);
-
+mh_result_t mh_stream_meta_init(mh_stream_meta_p meta, mh_int32_t size);
+mh_result_t mh_stream_meta_deinit(mh_stream_meta_p meta);
 void mh_stream_main(const char *in);
 
 

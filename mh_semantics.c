@@ -108,7 +108,7 @@ static inline mh_uint8_t get_bit(mh_uint8_t x, mh_int8_t bit)
 }
 
 
-mh_uint32_t read_bits(mh_array_p a, mh_int32_t n)
+mh_int32_t read_bits(mh_array_p a, mh_int32_t n)
 {
     if (!a)
         return -1;

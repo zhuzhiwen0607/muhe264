@@ -1,5 +1,6 @@
 
 #include <stdlib.h>
+#include <string.h>
 #include <assert.h>
 #include "mh_type.h"
 #include "mh_error.h"

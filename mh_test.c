@@ -1,10 +1,14 @@
 
+#include <string.h>
+
 #include "mh_test.h"
 #include "mh_log.h"
 #include "mh_error.h"
 
 //-----------------sementics test--------------------------
 #include "mh_semantics.h"
+
+
 
 static mh_bool_t test_next_byte_equal()
 {
@@ -34,7 +38,7 @@ static mh_bool_t test_next_byte_equal()
     mh_int32_t n2 = 3;
     mh_uint32_t bitnum2 = 0x000001;
 
-    ret = next_byte_equal(p2, n2, bitnum2);
+    ret = next_bytes_equal(p2, n2, bitnum2);
     if (mh_false == ret)
     {
         mh_info("testcase 2: ok");
@@ -154,7 +158,7 @@ static void test_cycle_queue()
         mh_cycle_queue_write(&queue, input, input_len);
         mh_cycle_queue_read(&queue, output, 9);     // output: 'hello, mu'
         char expect_output[] = "hello, mu";
-        if (!strncmp(output, expect_output))
+        if (!strcmp(output, expect_output))
         {
             mh_info("testcase 2: ok");
         }
@@ -178,7 +182,7 @@ static void test_cycle_queue()
 
         char expect_output[] = "he.enjoy it.";
 
-        if (!strncmp(output, expect_output))
+        if (!strcmp(output, expect_output))
         {
             mh_info("testcase 3: ok");
         }

@@ -12,7 +12,8 @@ set(SOURCES
     mh_type.c
     mh_mm.c
     mh_semantics.c
-    mh_nal_unit.c)
+    mh_nal_unit.c
+    mh_rbsp.c)
 
 set(HEADERS
     mh_stream.h
@@ -22,7 +23,8 @@ set(HEADERS
     mh_semantics.h
     mh_test.h
     mh_mm.h
-    mh_nal_unit.h)
+    mh_nal_unit.h
+    mh_rbsp.h)
 
 add_executable(muhe264 ${HEADERS} ${SOURCES})
 

@@ -14,7 +14,7 @@
 static mh_stream_meta_p mh_stream_meta = NULL;
 
 
-static void mh_stream_consumer(const char *streambuf, const int bufsize);
+//static void mh_stream_consumer(const char *streambuf, const int bufsize);
 static void mh_stream_nal_unit();
 /*
 mh_result mh_create_stream_meta(mh_stream_meta_p *meta, mh_int32_t capacity)
@@ -308,7 +308,7 @@ void mh_stream_main(const char *in)
         return;
     }
 
-    mh_stream_meta = malloc(sizeof(mh_stream_meta_t));
+    mh_stream_meta = malloc(sizeof(mh_stream_meta_t));  // ! use mm to alloc in the feature
     mh_stream_meta_init(&mh_stream_meta, STREAM_BUF_CAPACITY);
 
     mh_stream_loop_read(infile);

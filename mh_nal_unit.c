@@ -42,8 +42,9 @@ mh_result_t mh_nal_unit_init(mh_cycle_queue_p queue, mh_int32_t size, mh_nal_uni
     memset(nalu->buf, 0x00, sizeof(mh_array_t));
 
     mh_array_p array = nalu->buf;
-    array->base = malloc(size);
-    memset(array->base, 0x00, size);
+    mh_array_init(array, size);
+//    array->base = malloc(size);
+//    memset(array->base, 0x00, size);
 //    array->bits_start = array->base;
 //    array->bits_offset = 0;
 //    array->capacity = size;
@@ -91,7 +92,18 @@ static mh_result_t mh_nal_unit(mh_nal_unit_p nalu)
 
     mh_int32_t num_bytes_in_rbsp = 0;
     mh_int32_t nal_unit_header_bytes = 1;
-    mh_rbsp_new(nalu->rbsp_byte, nalu->buf->size);
+
+    nalu->rbsp = malloc(sizeof(mh_array_t));
+    memset(nalu->rbsp, 0x00, sizeof(mh_array_t));
+    mh_array_init(nalu->rbsp, nalu->buf->size);
+    nalu->rbsp->bits_offset = 0;
+    nalu->rbsp->forward_bits = 0;
+    nalu->rbsp->size = 0;
+    nalu->rbsp->bits_size = 0;
+
+//    mh_uint8_t *rbsp_byte = nalu->rbsp->base;
+
+//    mh_rbsp_new(nalu->rbsp_byte, nalu->buf->size);
 
     if (NAL_UNIT_TYPE_14 == nalu->nal_unit_type
             || NAL_UNIT_TYPE_20 == nalu->nal_unit_type
@@ -128,15 +140,27 @@ static mh_result_t mh_nal_unit(mh_nal_unit_p nalu)
     {
         if (i + 2 < nalu->buf->size && next_bits(nalu->buf, 24) == 0x000003)
         {
-            nalu->rbsp_byte[num_bytes_in_rbsp++] = read_bits(nalu->buf, 8);
-            nalu->rbsp_byte[num_bytes_in_rbsp++] = read_bits(nalu->buf, 8);
+//            nalu->rbsp_byte[num_bytes_in_rbsp++] = read_bits(nalu->buf, 8);
+//            nalu->rbsp_byte[num_bytes_in_rbsp++] = read_bits(nalu->buf, 8);
+            nalu->rbsp->base[num_bytes_in_rbsp++] = read_bits(nalu->buf, 8);
+            nalu->rbsp->base[num_bytes_in_rbsp++] = read_bits(nalu->buf, 8);
+            nalu->rbsp->size += 2;
+            nalu->rbsp->bits_size += (8 * 2);
             i += 2;
             // todo emulation_prevention_three_byte
         }
         else
         {
-            nalu->rbsp_byte[num_bytes_in_rbsp++] = read_bits(nalu->buf, 8);
+//            nalu->rbsp_byte[num_bytes_in_rbsp++] = read_bits(nalu->buf, 8);
+            nalu->rbsp->base[num_bytes_in_rbsp++] = read_bits(nalu->buf, 8);
+            nalu->rbsp->size += 1;
+            nalu->rbsp->bits_size += 8;
         }
+    }
+
+    switch (nalu->nal_unit_type)
+    {
+
     }
 
 }

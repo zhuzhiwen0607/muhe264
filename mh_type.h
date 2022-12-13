@@ -56,9 +56,9 @@ typedef struct
 {
     mh_uint8_t *base;
     mh_uint8_t *bits_start;     // always point to a start position of a byte
-    mh_int8_t bits_offset;      // bits offset in a byte
+    mh_int8_t bits_offset;      // bits offset in a byte [bits_start offset]
     mh_int32_t forward_bits;
-    mh_int32_t bits_size;
+    mh_int32_t bits_size;       // num bits in nal unit
     mh_int32_t size;            // num bytes in nal unit
 //    mh_int32_t capacity;
 }mh_array_t, *mh_array_p;

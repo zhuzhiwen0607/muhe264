@@ -236,6 +236,7 @@ mh_result_t mh_array_init(mh_array_p array, mh_int32_t capacity)
     memset(array, 0x00, sizeof(mh_array_t));
     array->base = malloc(capacity);
     memset(array->base, 0x00, capacity);
+    array->bits_start = array->base;
 }
 mh_result_t mh_array_deinit(mh_array_p array)
 {

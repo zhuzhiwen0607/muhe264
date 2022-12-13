@@ -6,7 +6,15 @@
 typedef struct
 {
     mh_array_p buf;
-
+    mh_uint8_t profile_idc;
+    mh_uint8_t constraint_set0_flag : 1;
+    mh_uint8_t constraint_set1_flag : 1;
+    mh_uint8_t constraint_set2_flag : 1;
+    mh_uint8_t constraint_set3_flag : 1;
+    mh_uint8_t constraint_set4_flag : 1;
+    mh_uint8_t constraint_set5_flag : 1;
+    mh_uint8_t reserved_zero_2bits : 2;
+    mh_uint8_t level_idc;
 
 }mh_rbsp_t, *mh_rbsp_p;
 

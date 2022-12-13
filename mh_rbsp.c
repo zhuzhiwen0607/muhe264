@@ -4,7 +4,7 @@
 #include "mh_rbsp.h"
 #include "mh_error.h"
 #include "mh_type.h"
-
+#include "mh_semantics.h"
 
 static mh_result_t mh_seq_parameter_set_data(mh_rbsp_p rbsp);
 
@@ -38,11 +38,25 @@ mh_result_t mh_rbsp_deinit(mh_rbsp_p rbsp)
 
 mh_result_t mh_seq_parameter_set_rbsp(mh_rbsp_p rbsp)
 {
-
+    mh_seq_parameter_set_data(rbsp);
     return MH_OK;
 }
 
 static mh_result_t mh_seq_parameter_set_data(mh_rbsp_p rbsp)
 {
+    if (!rbsp)
+        return MH_ERROR;
+
+    rbsp->profile_idc = read_bits(rbsp->buf, 8);
+    rbsp->constraint_set0_flag = read_bits(rbsp->buf, 1);
+    rbsp->constraint_set1_flag = read_bits(rbsp->buf, 1);
+    rbsp->constraint_set2_flag = read_bits(rbsp->buf, 1);
+    rbsp->constraint_set3_flag = read_bits(rbsp->buf, 1);
+    rbsp->constraint_set4_flag = read_bits(rbsp->buf, 1);
+    rbsp->constraint_set5_flag = read_bits(rbsp->buf, 1);
+    rbsp->level_idc = read_bits(rbsp->buf, 8);
+
+
+
     return MH_OK;
 }

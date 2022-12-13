@@ -53,8 +53,9 @@ typedef struct
     mh_uint8_t svc_extension_flag : 1;
     mh_uint8_t avc_3d_extension_flag : 1;
 
-    mh_array_p rbsp;
+//    mh_array_p rbsp;
 //    mh_uint8_t *rbsp_buf;
+    mh_rbsp_p rbsp;
 }mh_nal_unit_t, *mh_nal_unit_p;
 
 

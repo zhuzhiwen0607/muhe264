@@ -160,8 +160,15 @@ static mh_result_t mh_nal_unit(mh_nal_unit_p nalu)
 
     switch (nalu->nal_unit_type)
     {
+        case NAL_UNIT_TYPE_7:
 
+        break;
     }
+
+}
+
+static mh_result_t mh_seq_parameter_set_data()
+{
 
 }
 

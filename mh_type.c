@@ -293,22 +293,7 @@ static mh_result_t mh_array_deinit(mh_array_p array)
     return MH_OK;
 }
 
-static inline mh_bool_t eof(mh_array_p array)
-{
-    assert(array);
 
-    if (array->p > array->base + array->bytes_size)
-        return mh_true;
-    else
-        return mh_false;
-}
-
-static inline mh_uint8_t bit_val(mh_uint8_t byte, mh_int8_t bit)
-{
-    assert(bit >= 0);
-
-    return ((byte & (1 << bit)) >> bit);
-}
 
 static mh_int32_t mh_array_read_bits_n(mh_array_p array, mh_int32_t n)
 {

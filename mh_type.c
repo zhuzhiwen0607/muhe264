@@ -185,7 +185,8 @@ mh_int32_t mh_cycle_queue_more_bytes(mh_cycle_queue_p queue)
 
 //    return (queue->capacity - queue->used);
 
-    return (queue->used);
+//    return (queue->used);
+
 }
 
 mh_int32_t mh_cycle_queue_free_size(mh_cycle_queue_p queue)
@@ -199,37 +200,6 @@ mh_int32_t mh_cycle_queue_free_size(mh_cycle_queue_p queue)
 }
 
 
-
-mh_uint8_t mh_cycle_queue_at(mh_cycle_queue_p queue, mh_int32_t i)
-{
-
-    if (!queue)
-        return -1;
-
-    if (i > queue->used)
-        return -1;
-
-    const mh_int32_t pos = (start_index(queue) + i) % queue->capacity;
-
-    return queue->base[pos];
-}
-
-mh_result_t mh_cycle_queue_forward(mh_cycle_queue_p queue, mh_int32_t i)
-{
-    if (!queue)
-        return MH_ERROR;
-
-    if (i > queue->used)
-        return MH_ERROR_QUEUE_OVER_READ;
-
-    const mh_int32_t pos = (start_index(queue) + i) % queue->capacity;
-
-    queue->start = queue->base + pos;
-
-    queue->used -= i;
-
-    return MH_OK;
-}
 
 //--------------------mh_array_t-------------------
 

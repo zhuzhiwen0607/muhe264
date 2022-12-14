@@ -232,20 +232,94 @@ mh_result_t mh_cycle_queue_forward(mh_cycle_queue_p queue, mh_int32_t i)
 }
 
 //--------------------mh_array_t-------------------
-mh_result_t mh_array_init(mh_array_p array, mh_int32_t capacity)
+
+//static inline mh_bool_t eof(mh_array_p array);
+//static inline mh_uint8_t bit_val(mh_uint8_t byte, mh_int8_t bit);
+static mh_result_t mh_array_init(mh_array_p array, mh_int32_t capacity);
+static mh_result_t mh_array_deinit(mh_array_p array);
+
+
+mh_result_t mh_array_new(mh_array_p *array, mh_int32_t capacity)
 {
-    memset(array, 0x00, sizeof(mh_array_t));
+    if (!array)
+        return MH_ERROR;
+
+    *array = malloc(sizeof(mh_array_t));
+    memset(*array, 0x00, sizeof(mh_array_t));
+
+    return mh_array_init(*array, capacity);
+
+}
+
+mh_result_t mh_array_destroy(mh_array_p *array)
+{
+    if (!array)
+        return MH_ERROR;
+
+    mh_result_t ret = mh_array_deinit(*array);
+    if (MH_OK != ret)
+    {
+        return ret;
+    }
+
+    free(array);
+}
+
+static mh_result_t mh_array_init(mh_array_p array, mh_int32_t capacity)
+{
+    if (!array)
+        return MH_ERROR;
+
     array->base = malloc(capacity);
     memset(array->base, 0x00, capacity);
-    array->bits_start = array->base;
+    array->bytes_size = capacity;
+    array->byte_offset = 0;
+    array->p = array->base;
+
+    return MH_OK;
 }
-mh_result_t mh_array_deinit(mh_array_p array)
+
+static mh_result_t mh_array_deinit(mh_array_p array)
 {
+    if (!array)
+        return MH_ERROR;
+
     free(array->base);
     array->base = NULL;
-    array->bits_offset = 0;
-    array->bits_size = 0;
-    array->bits_start = NULL;
-    array->forward_bits = 0;
-    array->size = 0;
+    array->p = NULL;
+    array->bytes_size = 0;
+    array->byte_offset = 0;
+
+    return MH_OK;
+}
+
+static inline mh_bool_t eof(mh_array_p array)
+{
+    assert(array);
+
+    if (array->p > array->base + array->bytes_size)
+        return mh_true;
+    else
+        return mh_false;
+}
+
+static inline mh_uint8_t bit_val(mh_uint8_t byte, mh_int8_t bit)
+{
+    assert(bit >= 0);
+
+    return ((byte & (1 << bit)) >> bit);
+}
+
+static mh_int32_t mh_array_read_bits_n(mh_array_p array, mh_int32_t n)
+{
+    if (!array)
+        return -1;
+
+
+}
+
+static mh_int32_t mh_array_next_bits_n(mh_array_p array, mh_int32_t n)
+{
+    if (!array)
+        return -1;
 }

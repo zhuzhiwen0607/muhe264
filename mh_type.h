@@ -26,7 +26,7 @@ typedef enum
 //#define mh_true         1
 //#define mh_false        0
 
-typedef int             mh_result_t;
+typedef int             mh_result_t;    // enums in mh_error.h
 
 //-------------------mh_cycle_queue-------------
 typedef struct

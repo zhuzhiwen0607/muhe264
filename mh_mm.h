@@ -12,9 +12,11 @@
 static inline mh_result_t mh_malloc(mh_void_p *p, mh_int32_t size)
 {
 #ifdef USE_POSIX
-    *p = calloc(size, 1);
+    *p = malloc(size);
     if (!(*p))
         return MH_MM_MALLOC_ERROR;
+
+    memset(*p, 0x00, size);
 
     return MH_OK;
 #else

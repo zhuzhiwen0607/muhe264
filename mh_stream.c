@@ -14,7 +14,7 @@
 
 //static mh_stream_meta_t g_stream_meta;
 
-static mh_stream_meta_p mh_stream_meta = NULL;
+//static mh_stream_meta_p mh_stream_meta = NULL;
 
 static mh_stream_p mh_stream = NULL;
 
@@ -168,45 +168,48 @@ static void mh_stream_nal_unit()
         while (!next_bytes_equal(queue, 3, 0x000001) && !next_bytes_equal(queue, 4, 0x00000001))
         {
             leading_zero_8bits(queue);
-            if (mh_cycle_queue_more_bytes(queue) < 4)
+            if (more_bytes(queue) < 4)
                 return;
         }
 
-        if (!next_bytes_equal(buf, 3, 0x000001))   // next_bits( 24 ) != 0x000001
+        if (!next_bytes_equal(queue, 3, 0x000001))   // next_bits( 24 ) != 0x000001
         {
-            zero_byte(buf);   // equal to 0x00
+            zero_byte(queue);   // equal to 0x00
         }
 
-        start_code_prefix_one_3bytes(buf);    // equal to 0x000001
+        start_code_prefix_one_3bytes(queue);    // equal to 0x000001
 
         // we must set STREAM_BUF_CAPACITY large enough to restore at least one NAL unit
         // set nal_start
-        mh_stream_meta->nalustart = buf->start;
+//        mh_stream_meta->nalustart = buf->start;
+        mh_stream->nalu_start = queue->start;
 
 
-        while (more_data_in_byte_stream(buf)
-               && !next_bytes_equal(buf, 3, 0x000001)
-               && !next_bytes_equal(buf, 4, 0x00000001))
+        while (more_data_in_byte_stream(queue)
+               && !next_bytes_equal(queue, 3, 0x000001)
+               && !next_bytes_equal(queue, 4, 0x00000001))
         {
+            ++(mh_stream->nalu_size);
 
-            ++mh_stream_meta->nalusize;
-
-            if (mh_cycle_queue_more_bytes(buf) < 4)
+            if (more_bytes(queue) < 4)
             {
-                // not a compete nal unit, read data from file again
+                // not a compete nal unit, read data from source again
                 return;
             }
         }
 
+        mh_int32_t nalu_size = mh_stream->nalu_size;
+        mh_stream->nalu_end = mh_stream->nalu_start + nalu_size;
 
-        mh_int32_t ns = mh_stream_meta->nalusize;
-        mh_stream_meta->nalusize = 0;
 
         // parse nal unit
         // copy
         mh_nal_unit_p nal_unit = NULL;
-        mh_nal_unit_new(ns, &nal_unit);
+        mh_nal_unit_new(nalu_size, &nal_unit);
         mh_nal_unit_init(buf, ns, nal_unit);
+
+
+        mh_stream->nalu_size = 0;
 
 
 

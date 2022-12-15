@@ -59,7 +59,7 @@ mh_uint8_t mh_cycle_queue_at(mh_cycle_queue_p queue, mh_int32_t i);
 mh_result_t mh_cycle_queue_forward(mh_cycle_queue_p queue, mh_int32_t i);
 
 //-------------------mh_array-----------------------
-
+/*
 typedef struct
 {
     mh_uint8_t *base;       // start pos of array elements
@@ -67,7 +67,7 @@ typedef struct
     mh_uint8_t byte_offset; // bits offset in byte which p point
     mh_int32_t bytes_size;  // size of array elements
 }mh_array_t, *mh_array_p;
-
+*/
 /*
 typedef struct
 {

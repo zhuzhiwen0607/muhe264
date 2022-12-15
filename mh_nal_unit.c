@@ -1,7 +1,12 @@
 
 #include <stdlib.h>
 #include <string.h>
+
+
+
 #include "mh_nal_unit.h"
+#include "mh_mm.h"
+
 #include "mh_error.h"
 #include "mh_semantics.h"
 
@@ -15,31 +20,28 @@ static mh_result_t mh_nal_unit(mh_nal_unit_p nalu);
 //static mh_result_t mh_rbsp_tailing_bits();
 
 
-mh_result_t mh_nal_unit_new(mh_int32_t size, mh_nal_unit_p *nalu)
+mh_result_t mh_nal_unit_new(mh_queue_p queue, mh_nal_unit_p *nalu, mh_int32_t size)
 {
-    if (nalu == NULL || *nalu != NULL)
-        return MH_ERROR;
+    assert(queue);
+    assert(nalu);
 
-    // two alloc methods
-    // 1. alloc with malloc
-    *nalu = malloc(sizeof(mh_nal_unit_t));
-    if (*nalu == NULL)
-        return MH_ERROR;
+    mh_result_t ret = mh_malloc(*nalu, sizeof(mh_nal_unit_t));
+    if (MH_OK != ret)
+        return ret;
 
-    memset(*nalu, 0x00, sizeof(mh_nal_unit_t));
-
-//    (*nalu)->buf = malloc(size);
-//    memset((*nalu)->buf, 0x00, size);
-
-//    (*nalu)->buf
-
-
-    // 2. alloc from memory pool(mh_mm.c)  --todo
-
-    return MH_OK;
+    return mh_nal_unit_init(queue, *nalu, size);
 
 }
 
+static mh_result_t mh_nal_unit_init(mh_queue_p queue, mh_nal_unit_p nalu, size)
+{
+    assert(queue);
+    assert(nalu);
+
+    mh_array_new(&(nalu->buf), size);
+}
+
+/*
 mh_result_t mh_nal_unit_init(mh_cycle_queue_p queue, mh_int32_t size, mh_nal_unit_p nalu)
 {
     if (!nalu)
@@ -67,6 +69,7 @@ mh_result_t mh_nal_unit_init(mh_cycle_queue_p queue, mh_int32_t size, mh_nal_uni
 
     return MH_OK;
 }
+*/
 
 /*
 mh_result_t mh_nal_unit_init(mh_cycle_queue_p queue, mh_int32_t size, mh_nal_unit_p nalu)

@@ -1,4 +1,4 @@
-
+#if 0
 #include <string.h>
 
 #include "mh_test.h"
@@ -307,3 +307,4 @@ void mh_test_main()
 //    test_type();
 //    test_stream();
 }
+#endif

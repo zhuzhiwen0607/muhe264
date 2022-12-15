@@ -6,7 +6,7 @@
 #include "mh_error.h"
 #include "mh_log.h"
 //#include "mh_mm.h"
-
+#if 0
 //----------------mh_cycle_queue----------------
 static inline mh_int32_t start_index(mh_cycle_queue_p queue)
 {
@@ -279,3 +279,4 @@ static mh_int32_t mh_array_next_bits_n(mh_array_p array, mh_int32_t n)
     if (!array)
         return -1;
 }
+#endif

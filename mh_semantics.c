@@ -7,7 +7,7 @@
 
 
 
-
+#if 0
 //------------------------nal unit semantics-----------------
 static inline mh_uint8_t get_bit(mh_uint8_t x, mh_int8_t bit)
 {
@@ -87,7 +87,7 @@ mh_int32_t next_bits(mh_array_p a, mh_int32_t n)
 
     return r;
 }
-
+#endif
 
 
 

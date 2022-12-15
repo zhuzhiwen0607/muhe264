@@ -14,7 +14,7 @@ static void show_usage()
 int main(int argc, const char *argv[])
 {
 
-    mh_test_main();
+//    mh_test_main();
     return 0;
 
     if (argc != 2)
@@ -25,7 +25,7 @@ int main(int argc, const char *argv[])
     if (!infile)
     {
         show_usage();
-        return MH_ERROR_INVALID_PARAM;
+        return MH_INVALID_PARAM;
     }
 
 

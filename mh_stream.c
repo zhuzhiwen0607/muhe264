@@ -205,8 +205,7 @@ static void mh_stream_nal_unit()
         // parse nal unit
         // copy
         mh_nal_unit_p nal_unit = NULL;
-        mh_nal_unit_new(nalu_size, &nal_unit);
-        mh_nal_unit_init(buf, ns, nal_unit);
+        mh_nal_unit_new(mh_stream->buf, &nal_unit, nalu_size);
 
 
         mh_stream->nalu_size = 0;
@@ -217,7 +216,7 @@ static void mh_stream_nal_unit()
 
 
         // do parse
-        mh_nal_unit_main(nal_unit);
+//        mh_nal_unit_main(nal_unit);
 
 
 
@@ -258,7 +257,7 @@ mh_result_t mh_stream_read_file(const char *filepath)
         memset(readbuf, 0x00, read_buf_size);
 
         freebytes = mh_queue_space(mh_stream->buf);
-        readbytes = fread(readbuf, 1, freebytes, infile);
+        readbytes = fread(readbuf, 1, freebytes, file);
         if (readbytes < freebytes)
         {
             // eof

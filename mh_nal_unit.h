@@ -2,6 +2,7 @@
 #define MH_NAL_UNIT_H
 
 #include "mh_queue.h"
+#include "mh_array.h"
 #include "mh_type.h"
 #include "mh_rbsp.h"
 

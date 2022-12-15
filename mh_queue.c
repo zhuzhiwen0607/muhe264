@@ -135,7 +135,7 @@ mh_result_t mh_queue_read(mh_queue_p queue, mh_uint8_t *dst, mh_int32_t size)
 
     if (loopback)
     {
-        mh_int32_t front_halfsize = queue->capacity - queue->start;
+        mh_int32_t front_halfsize = queue->base + queue->capacity - queue->start;
         mh_int32_t back_halfsize = readbytes - front_halfsize;
         memcpy(dst, queue->start, front_halfsize);
         memcpy(dst + front_halfsize, queue->base, back_halfsize);

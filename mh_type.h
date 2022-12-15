@@ -2,6 +2,7 @@
 #define MH_TYPE_H
 
 // internal type
+
 typedef void            mh_void_t;
 typedef void*           mh_void_p;
 
@@ -15,19 +16,13 @@ typedef unsigned int    mh_uint32_t;
 typedef char            mh_char_t;
 typedef unsigned char   mh_uchar_t;
 
-
-typedef enum
-{
-    mh_false = 0,
-    mh_true = 1
-}mh_bool_t;
-
-//typedef unsigned int    mh_bool_t;
-//#define mh_true         1
-//#define mh_false        0
+typedef unsigned int    mh_bool_t;
+#define mh_true         1
+#define mh_false        0
 
 typedef int             mh_result_t;    // enums in mh_error.h
 
+#if 0
 //-------------------mh_cycle_queue-------------
 typedef struct
 {
@@ -102,7 +97,7 @@ static inline mh_uint8_t bit_val(mh_uint8_t byte, mh_int8_t bit)
 
     return ((byte & (1 << bit)) >> bit);
 }
-
+#endif
 
 
 #endif // MH_TYPE_H

@@ -5,6 +5,7 @@
 #include "mh_error.h"
 #include "mh_type.h"
 #include "mh_semantics.h"
+#include "mh_array.h"
 
 static mh_result_t mh_seq_parameter_set_data(mh_rbsp_p rbsp);
 
@@ -20,7 +21,7 @@ mh_result_t mh_rbsp_init(mh_rbsp_p rbsp, mh_uint32_t size)
 
     rbsp->buf = malloc(sizeof(mh_array_t));
 
-    mh_array_init(rbsp->buf, size);
+//    mh_array_init(rbsp->buf, size);
 
     return MH_OK;
 
@@ -47,14 +48,14 @@ static mh_result_t mh_seq_parameter_set_data(mh_rbsp_p rbsp)
     if (!rbsp)
         return MH_ERROR;
 
-    rbsp->profile_idc = read_bits(rbsp->buf, 8);
-    rbsp->constraint_set0_flag = read_bits(rbsp->buf, 1);
-    rbsp->constraint_set1_flag = read_bits(rbsp->buf, 1);
-    rbsp->constraint_set2_flag = read_bits(rbsp->buf, 1);
-    rbsp->constraint_set3_flag = read_bits(rbsp->buf, 1);
-    rbsp->constraint_set4_flag = read_bits(rbsp->buf, 1);
-    rbsp->constraint_set5_flag = read_bits(rbsp->buf, 1);
-    rbsp->level_idc = read_bits(rbsp->buf, 8);
+    rbsp->profile_idc = read_bits_u(rbsp->buf, 8);
+    rbsp->constraint_set0_flag = read_bits_u(rbsp->buf, 1);
+    rbsp->constraint_set1_flag = read_bits_u(rbsp->buf, 1);
+    rbsp->constraint_set2_flag = read_bits_u(rbsp->buf, 1);
+    rbsp->constraint_set3_flag = read_bits_u(rbsp->buf, 1);
+    rbsp->constraint_set4_flag = read_bits_u(rbsp->buf, 1);
+    rbsp->constraint_set5_flag = read_bits_u(rbsp->buf, 1);
+    rbsp->level_idc = read_bits_u(rbsp->buf, 8);
 
 
 

@@ -16,7 +16,7 @@
 
 // mm
 #define MH_MM_BEGIN                   -200
-#define MH_MM_MALLOC_ERROR            MH_MM_BASE - 0
+#define MH_MM_MALLOC_ERROR            MH_MM_BEGIN - 0
 
 #define MH_MM_END                     MH_MM_MALLOC_ERROR - 99
 

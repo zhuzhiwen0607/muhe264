@@ -4,10 +4,10 @@
 #include "mh_error.h"
 
 
-static mh_result_t mh_array_init(mh_array_p array, size);
+static mh_result_t mh_array_init(mh_array_p array, mh_int32_t size);
 static mh_result_t mh_array_deinit(mh_array_p array);
 
-mh_result_t mh_array_new(mh_array_p* array, size)
+mh_result_t mh_array_new(mh_array_p* array, mh_int32_t size)
 {
     assert(array);
 
@@ -28,7 +28,7 @@ mh_result_t mh_array_destroy(mh_array_p* array)
     mh_free(array);
 }
 
-static mh_result_t mh_array_init(mh_array_p array, size)
+static mh_result_t mh_array_init(mh_array_p array, mh_int32_t size)
 {
     assert(array);
 
@@ -38,7 +38,8 @@ static mh_result_t mh_array_init(mh_array_p array, size)
 
     array->p = array->start;
     array->end = array->start + size + 1;   // *end point to buffer_end+1
-    array->byte_offset = 0;
+    array->offset = 0;
+    array->size = size;
 
     return MH_OK;
 }
@@ -52,5 +53,6 @@ static mh_result_t mh_array_deinit(mh_array_p array)
     array->start = NULL;
     array->end = NULL;
     array->p = NULL;
-    array->byte_offset = 0;
+    array->offset = 0;
+    array->size = 0;
 }

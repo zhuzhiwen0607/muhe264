@@ -2,6 +2,7 @@
 #define MH_RBSP_H
 
 #include "mh_type.h"
+#include "mh_array.h"
 
 typedef struct
 {

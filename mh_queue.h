@@ -1,6 +1,8 @@
 #ifndef MH_QUEUE_H
 #define MH_QUEUE_H
 
+#include <assert.h>
+#include <stddef.h>
 #include "mh_type.h"
 #include "mh_error.h"
 

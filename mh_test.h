@@ -17,6 +17,15 @@ void mh_test_main();
         } \
     } while (0);
 
+#define SHOULD_NOT_EQUAL_INT(a, b) \
+    do { \
+        if (a != b) { \
+            mh_info("ok"); \
+        } else { \
+            mh_error("error, a=0x%x, b=0x%x", a, b); \
+        } \
+    } while (0);
+
 
 static inline mh_void_t SHOULD_EQUAL_INT32(mh_int32_t a, mh_int32_t b, mh_char_t *text)
 {

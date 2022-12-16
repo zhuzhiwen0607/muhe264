@@ -345,11 +345,19 @@ static void queue_test()
     mh_queue_write(q, b, 3);
     SHOULD_EQUAL_INT(q->start[10], 0x12);
 
-    mh_uint8_t c[5] = {0};
+    mh_uint8_t c[7] = {0};
     c[4] = 0x20;
-    mh_queue_write(q, c, 5);
+    c[5] = 0x21;
+    mh_queue_write(q, c, 7);
     SHOULD_EQUAL_INT(q->start[15], 0x20);
+    SHOULD_NOT_EQUAL_INT(q->start[16], 0x21);
 
+    mh_uint8_t d[4] = {0};
+    mh_queue_read(q, d, 4);
+    SHOULD_EQUAL_INT(d[0], 0x0A);
+    SHOULD_EQUAL_INT(d[0], 0x00);
+    SHOULD_EQUAL_INT(d[0], 0x03);
+    SHOULD_EQUAL_INT(d[0], 0x04);
 
 
     mh_queue_destroy(&q);

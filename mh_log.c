@@ -49,10 +49,12 @@ void mh_log_error(int target, const char *file, const int line, const char *func
 {
     char buf[MAX_LOG_LEN] = {0};
 
-    va_list arglist;
-    va_start(arglist, format);
-    vsnprintf(buf, sizeof(buf), format, arglist);
-    va_end(arglist);
+//    va_list arglist;
+//    va_start(arglist, format);
+//    vsnprintf(buf, sizeof(buf), format, arglist);
+//    va_end(arglist);
+    mh_log_core(buf, file, line, func, format);
+
 
     if (target == TARGET_CONSOLE)
         printf("ERROR %s\n", buf);

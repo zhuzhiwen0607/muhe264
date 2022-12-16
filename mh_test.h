@@ -13,7 +13,7 @@ void mh_test_main();
         if (a == b) { \
             mh_info("ok"); \
         } else { \
-            mh_error("error"); \
+            mh_error("error, a=0x%x, b=0x%x", a, b); \
         } \
     } while (0);
 

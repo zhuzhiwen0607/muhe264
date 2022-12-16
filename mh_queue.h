@@ -32,6 +32,8 @@ static inline mh_bool_t more_data_in_byte_stream(mh_queue_p queue);
 
 //static inline mh_int32_t queue_used(mh_uint8_t *start, mh_uint8_t *end, mh_int32_t capacity);
 static inline mh_int32_t queue_used(mh_queue_p queue);
+static inline mh_uint8_t* queue_new_start(mh_queue_p queue, mh_int32_t step, mh_bool_t *loopback);
+static inline mh_uint8_t* queue_new_end(mh_queue_p queue, mh_int32_t step, mh_bool_t *loopback);
 //static inline mh_uint8_t* queue_pos(mh_uint8_t *base, mh_uint8_t *pos, mh_int32_t capacity, mh_int32_t size, mh_int32_t *loopback);
 static inline mh_result_t enqueue_update_pos(mh_queue_p queue, mh_int32_t size, mh_int32_t *loopback);
 static inline mh_result_t dequeue_update_pos(mh_queue_p queue, mh_int32_t size, mh_int32_t *loopback);
@@ -128,6 +130,41 @@ static inline mh_int32_t queue_used(mh_queue_p queue)
 
     return (queue->start <= queue->end) ? (queue->end - queue->start) : (queue->capacity - (queue->start - queue->end));
 }
+
+static inline mh_uint8_t* queue_new_start(mh_queue_p queue, mh_int32_t step, mh_bool_t *loopback)
+{
+    assert(queue);
+
+    if (step > queue_used(queue))
+        return MH_QUEUE_OVER_BOUND;
+
+    mh_int32_t idx = queue->start - queue->base;
+
+    if (loopback)
+        *loopback = (idx + step) / queue->capacity;
+
+    idx = (idx + step) % queue->capacity;
+
+    return (queue->start + idx);
+}
+
+static inline mh_uint8_t* queue_new_end(mh_queue_p queue, mh_int32_t step, mh_bool_t *loopback)
+{
+    assert(queue);
+
+    if (step > mh_queue_space(queue))
+        return MH_QUEUE_OVER_BOUND;
+
+    mh_int32_t idx = queue->end - queue->base;
+
+    if (loopback)
+        *loopback = (idx + step) / queue->capacity;
+
+    idx = (idx + step) % queue->capacity;
+
+    return (queue->end + idx);
+}
+
 
 static inline mh_result_t enqueue_update_pos(mh_queue_p queue, mh_int32_t size, mh_int32_t *loopback)
 {

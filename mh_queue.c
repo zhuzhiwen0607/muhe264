@@ -39,6 +39,7 @@ mh_result_t mh_queue_new(mh_queue_p *queue, mh_int32_t capacity)
 mh_result_t mh_queue_destroy(mh_queue_p *queue)
 {
     assert(queue);
+    assert(*queue);
 
     mh_queue_deinit(*queue);
 
@@ -73,7 +74,7 @@ static mh_result_t mh_queue_deinit(mh_queue_p queue)
 {
     assert(queue);
 
-    mh_free(queue->base);
+    mh_free(&(queue->base));
     queue->base = NULL;
     queue->start = NULL;
     queue->end = NULL;
@@ -96,8 +97,10 @@ mh_result_t mh_queue_write(mh_queue_p queue, mh_uint8_t *src, mh_int32_t size)
     else
         writebytes = size;
 
-    mh_int32_t loopback = 0;
-    mh_uint8_t *new_end = enqueue_update_pos(queue, writebytes, &loopback);
+//    mh_int32_t loopback = 0;
+//    mh_uint8_t *new_end = enqueue_update_pos(queue, writebytes, &loopback);
+    mh_bool_t loopback = mh_false;
+    mh_uint8_t *new_end = queue_new_end(queue, writebytes, &loopback);
 
     if (loopback)
     {

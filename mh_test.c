@@ -334,7 +334,7 @@ static void queue_test()
     mh_queue_write(q, a, 8);
     SHOULD_EQUAL_INT(q->start[0], 0x0A);
 
-    mh_error("test error");
+
 
     mh_queue_destroy(&q);
 }

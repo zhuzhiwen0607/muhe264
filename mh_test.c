@@ -325,7 +325,16 @@ static void queue_test()
     mh_queue_new(&q, cap);
 
     mh_int32_t space = mh_queue_space(q);
-    SHOULD_EQUAL_INT32(space, 64);
+    SHOULD_EQUAL_INT(space, 64);
+
+    mh_uint8_t a[10] = {0};
+    a[0] = 0x0A;
+    a[2] = 0x03;
+    a[3] = 0x04;
+    mh_queue_write(q, a, 8);
+    SHOULD_EQUAL_INT(q->start[0], 0x0A);
+
+    mh_error("test error");
 
     mh_queue_destroy(&q);
 }

@@ -1,6 +1,7 @@
 #ifndef MH_NAL_UNIT_H
 #define MH_NAL_UNIT_H
 
+#include "mh_list.h"
 #include "mh_queue.h"
 #include "mh_array.h"
 #include "mh_type.h"
@@ -47,6 +48,7 @@ typedef struct
 {
 //    mh_uint8_t *buf;
     mh_array_p buf;
+    mh_list_p list;
 
 //    mh_int32_t size;
     mh_uint8_t forbidden_zero_bit : 1;

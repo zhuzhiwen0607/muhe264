@@ -69,6 +69,10 @@ static mh_result_t mh_nal_unit_init(mh_queue_p queue, mh_nal_unit_p nalu, mh_int
     if (MH_OK != ret)
         return ret;
 
+    ret = mh_list_new(&(nalu->list));
+    if (MH_OK != ret)
+        return ret;
+
     return MH_OK;
 }
 

@@ -11,7 +11,7 @@ mh_result_t mh_array_new(mh_array_p* array, mh_int32_t size)
 {
     assert(array);
 
-    mh_result_t ret = mh_malloc(array, size);
+    mh_result_t ret = mh_malloc(array, sizeof(mh_array_t));
     if (MH_OK != ret)
         return ret;
 

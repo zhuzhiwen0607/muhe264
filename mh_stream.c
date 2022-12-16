@@ -11,20 +11,16 @@
 #include "mh_error.h"
 
 
-
-//static mh_stream_meta_t g_stream_meta;
-
-//static mh_stream_meta_p mh_stream_meta = NULL;
-
 static mh_stream_p mh_stream = NULL;
 
 
-//static void mh_stream_consumer(const char *streambuf, const int bufsize);
 static void mh_stream_nal_unit();
 
 static mh_stream_type_t mh_stream_check_type(const char *in);
 static mh_result_t mh_stream_init(mh_stream_p stream, mh_int32_t capacity);
 static mh_result_t mh_stream_deinit(mh_stream_p stream);
+static mh_void_t mh_stream_add_nalu(mh_stream_p stream, mh_nal_unit_p nalu);
+
 
 mh_result_t mh_stream_new(mh_stream_p *stream, mh_int32_t capacity)
 {
@@ -48,9 +44,22 @@ static mh_result_t mh_stream_init(mh_stream_p stream, mh_int32_t capacity)
 {
     assert(stream);
 
-    mh_result_t ret = mh_malloc(stream->buf, sizeof(mh_queue_t));
+//    mh_result_t ret = mh_malloc(stream->buf, sizeof(mh_queue_t));
+//    if (MH_OK != ret)
+//        return ret;
+
+    mh_result_t ret = mh_array_new(&(stream->buf), capacity);
     if (MH_OK != ret)
         return ret;
+
+    ret = mh_list_new(&(stream->list));
+    if (MH_OK != ret)
+        return ret;
+
+    stream->nalu_start = NULL;
+    stream->nalu_end = NULL;
+    stream->nalu_size = 0;
+
 
     return MH_OK;
 
@@ -65,96 +74,14 @@ static mh_result_t mh_stream_deinit(mh_stream_p stream)
 
     return MH_OK;
 }
-/*
-mh_result_t mh_stream_meta_init(mh_stream_meta_p meta, mh_int32_t size)
+
+static mh_void_t mh_stream_add_nalu(mh_nal_unit_p nalu)
 {
-    if (!meta)
-        return MH_ERROR_INVALID_PARAM;
+    assert(mh_stream);
+    assert(nalu);
 
-    memset(meta, 0x00, sizeof(mh_stream_meta_t));
-
-    meta->buf = malloc(sizeof(mh_cycle_queue_t));
-    memset(meta->buf, 0x00, sizeof(mh_cycle_queue_t));
-    mh_cycle_queue_init(meta->buf, size);
-
-    meta->nalustart = NULL;
-//    meta->nal_end = NULL;
-    meta->nalusize = 0;
-    meta->p = meta->buf->base;
-
-    return MH_OK;
-
+    mh_list_push_back(mh_stream->list, nalu->list);
 }
-
-mh_result_t mh_stream_meta_deinit(mh_stream_meta_p meta)
-{
-    if (!meta)
-        return MH_ERROR;
-
-    mh_cycle_queue_deinit(meta->buf);
-    free(meta->buf);
-
-    meta->buf = NULL;
-    meta->nalustart = NULL;
-    meta->nalusize = 0;
-//    meta->nal_end = NULL;
-    meta->p = NULL;
-
-    return MH_OK;
-
-}
-
-static mh_bool_t mh_reset_streammeta(mh_stream_meta_p meta, mh_int32_t append_bufsize)
-{
-    if (!meta)
-        return mh_false;
-
-//    mh_int32_t new_bufsize = meta->bufsize +
-}
-*/
-
-#if 0
-static void mh_stream_consumer(const char *streambuf, const int bufsize)
-{
-    /*
-    if (!streambuf)
-    {
-        mh_error("input param is null");
-        return;
-    }
-
-    const int buf_offset = g_stream_meta.bufsize;
-    const int new_bufsize = bufsize + buf_offset;
-
-    if (g_stream_meta.bufsize > 0 && g_stream_meta.buf)
-    {
-        realloc(g_stream_meta.buf, new_bufsize);
-        memset(g_stream_meta.buf + buf_offset, 0, bufsize);
-    }
-    else
-    {
-        g_stream_meta.buf = (char*)malloc(bufsize);
-        memset(g_stream_meta.buf, 0, bufsize);
-    }
-
-    mh_info("streambuf=%p, bufsize=%d, buf_offset=%d, new_bufsize=%d", streambuf, bufsize, buf_offset, new_bufsize);
-
-    memcpy(g_stream_meta.buf + buf_offset, streambuf, bufsize);
-    */
-
-    mh_stream_nal_unit();
-}
-#endif
-
-//static void mh_stream_set_nal_start()
-//{
-//    mh_stream_meta->nal_start = mh_stream
-//}
-
-//static void mh_stream_set_nal_end()
-//{
-
-//}
 
 
 static void mh_stream_nal_unit()
@@ -201,24 +128,17 @@ static void mh_stream_nal_unit()
         mh_int32_t nalu_size = mh_stream->nalu_size;
         mh_stream->nalu_end = mh_stream->nalu_start + nalu_size;
 
-
-        // parse nal unit
-        // copy
+        // new nalu_unit
         mh_nal_unit_p nal_unit = NULL;
         mh_nal_unit_new(mh_stream->buf, &nal_unit, nalu_size);
 
+        // add nal_unit to mh_stream_meta
+        mh_stream_add_nalu(nal_unit);
 
         mh_stream->nalu_size = 0;
 
-
-
-        // add nal_unit to mh_stream_meta
-
-
         // do parse
-//        mh_nal_unit_main(nal_unit);
-
-
+        mh_nal_unit_main(nal_unit);
 
     }
 
@@ -281,44 +201,7 @@ mh_result_t mh_stream_read_file(const char *filepath)
 
 }
 
-/*
-mh_result_t mh_stream_loop_read(FILE *src)
-{
-    if (!src)
-        return MH_ERROR;
 
-    mh_stream_meta_p dst = mh_stream_meta;
-
-    mh_int32_t bufcap = dst->buf->capacity;
-
-    mh_int32_t freebytes = 0;
-    mh_int32_t readbytes = 0;
-    mh_uint8_t *readbuf = malloc(bufcap);
-    mh_bool_t done = mh_false;
-
-    do
-    {
-        memset(readbuf, 0x00, bufcap);
-        freebytes = mh_cycle_queue_free_size(dst->buf);
-
-        readbytes = fread(readbuf, 1, freebytes, src);
-        if (readbytes < freebytes)
-        {
-            // eof
-
-            done = mh_true;
-        }
-
-        mh_cycle_queue_write(dst->buf, readbuf, readbytes);
-
-        // todo: begin to decode h.264 data readed from file
-        mh_stream_nal_unit();
-
-    } while (!done);
-
-
-}
-*/
 static mh_stream_type_t mh_stream_check_type(const char *in)
 {
     return STREAM_TYPE_FILE;

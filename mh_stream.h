@@ -1,7 +1,7 @@
 #ifndef STREAM_H
 #define STREAM_H
 
-
+#include "mh_list.h"
 #include "mh_queue.h"
 #include "mh_type.h"
 
@@ -23,6 +23,7 @@ typedef struct
     mh_uint8_t *nalu_start;
     mh_uint8_t *nalu_end;
     mh_int32_t nalu_size;
+    mh_list_p list;
 }mh_stream_t, *mh_stream_p;
 
 /*

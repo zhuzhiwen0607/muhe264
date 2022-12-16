@@ -6,8 +6,34 @@
 #include "mh_type.h"
 #include "mh_semantics.h"
 #include "mh_array.h"
+#include "mh_mm.h"
 
 static mh_result_t mh_seq_parameter_set_data(mh_rbsp_p rbsp);
+
+mh_result_t mh_rbsp_new(mh_rbsp_p *rbsp, mh_uint32_t size)
+{
+    assert(rbsp);
+
+    mh_result_t ret = mh_malloc(rbsp, sizeof(mh_rbsp_t));
+    if (MH_OK != ret)
+        return ret;
+
+    return mh_rbsp_init(*rbsp, size);
+}
+
+mh_result_t mh_rbsp_destroy(mh_rbsp_p *rbsp)
+{
+    assert(rbsp);
+    assert(*rbsp);
+
+    mh_result_t ret = mh_rbsp_deinit(*rbsp);
+    if (MH_OK != ret)
+        return ret;
+
+    mh_free(rbsp);
+
+    return MH_OK;
+}
 
 mh_result_t mh_rbsp_init(mh_rbsp_p rbsp, mh_uint32_t size)
 {

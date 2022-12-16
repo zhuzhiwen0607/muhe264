@@ -8,31 +8,58 @@ typedef struct
 {
     mh_uint8_t *start;       // start pos of array elements
     mh_uint8_t *end;
-    mh_uint8_t *p;           // current base offset
+    mh_uint8_t *cur;         // current base offset
     mh_uint8_t offset;       // bits offset in byte which p point
-    mh_int32_t size;         // bytes of array elements
+//    mh_int32_t size;         // bytes of array elements
+    mh_int32_t capacity;
 }mh_array_t, *mh_array_p;
 
-mh_result_t mh_array_new(mh_array_p* array, mh_int32_t size);
+mh_result_t mh_array_new(mh_array_p* array, mh_int32_t capacity);
 mh_result_t mh_array_destroy(mh_array_p* array);
+mh_uint32_t mh_array_size(mh_array_p array);
 
+mh_result_t mh_array_write_u1(mh_array_p array, mh_uint8_t byte);
+mh_result_t mh_array_write_u(mh_array_p array, mh_uint8_t *src, mh_int32_t n);
+
+//mh_void_t mh_array_write_update(mh_array_p* array, mh_int32_t size);
+mh_result_t mh_array_end_forward(mh_array_p array, mh_int32_t i);
+mh_result_t mh_array_cur_forward(mh_array_p array, mh_int32_t i);
+
+static inline mh_uint32_t array_size(mh_array_p array);
 static inline mh_bool_t eof(mh_array_p array);
 static inline mh_uint8_t bit_val(mh_uint8_t byte, mh_uint8_t bit);
+static inline mh_uint32_t read_bits_f(mh_array_p array, mh_int32_t n);
 static inline mh_uint32_t read_bits_u1(mh_array_p array);
 static inline mh_uint32_t read_bits_u(mh_array_p array, mh_int32_t n);
 static inline mh_uint32_t next_bits_u(mh_array_p array, mh_int32_t n);
 static inline mh_uint32_t next_bits_u1(mh_array_p array);
 
+static inline mh_uint32_t array_size(mh_array_p array)
+{
+    assert(array);
+    assert(array->cur);
+    assert(array->end);
+    assert(array->end - array->cur >= 0);
+
+    return array->end - array->cur;
+}
+
 static inline mh_bool_t eof(mh_array_p array)
 {
     assert(array);
 
-    return (array->end - array->p > 0) ? mh_false : mh_true;
+    return (array->end - array->cur > 0) ? mh_false : mh_true;
 }
 
 static inline mh_uint8_t bit_val(mh_uint8_t byte, mh_uint8_t bit)
 {
     return ((byte & (1 << bit)) >> bit);
+}
+
+static inline mh_uint32_t read_bits_f(mh_array_p array, mh_int32_t n)
+{
+    assert(array);
+    return read_bits_u(array, n);
 }
 
 static inline mh_uint32_t read_bits_u1(mh_array_p array)
@@ -43,10 +70,10 @@ static inline mh_uint32_t read_bits_u1(mh_array_p array)
 
     if (!eof(array))
     {
-        r = bit_val(array->p, array->offset);
+        r = bit_val(array->cur, array->offset);
     }
 
-    array->p += (array->offset + 1) / 8;
+    array->cur += (array->offset + 1) / 8;
     array->offset = (array->offset + 1) % 8;
 
     return r;
@@ -77,7 +104,7 @@ static inline mh_uint32_t next_bits_u(mh_array_p array, mh_int32_t n)
     mh_int32_t i = 0;
     while (i < n)
     {
-        mh_uint8_t byte = *(array->p + (array->offset + i) / 8);
+        mh_uint8_t byte = *(array->cur + (array->offset + i) / 8);
         mh_uint8_t bit = array->offset + (array->offset + i) % 8;
 
         r |= bit_val(byte, bit) << i;
@@ -93,7 +120,7 @@ static inline mh_uint32_t next_bits_u1(mh_array_p array)
 {
     assert(array);
 
-    return bit_val(array->p, array->offset);
+    return bit_val(array->cur, array->offset);
 
 }
 

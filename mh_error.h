@@ -34,6 +34,7 @@
 
 // array
 #define MH_ARRAY_BEGIN                -400
+#define MH_ARRAY_OVER_BOUND           MH_ARRAY_BEGIN - 0
 
 #define MH_ARRAY_END                  MH_ARRAY_BEGIN - 99
 

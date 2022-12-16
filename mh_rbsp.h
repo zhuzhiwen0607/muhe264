@@ -19,6 +19,9 @@ typedef struct
 
 }mh_rbsp_t, *mh_rbsp_p;
 
+mh_result_t mh_rbsp_new(mh_rbsp_p *rbsp, mh_uint32_t size);
+mh_result_t mh_rbsp_destroy(mh_rbsp_p *rbsp);
+
 mh_result_t mh_rbsp_init(mh_rbsp_p rbsp, mh_uint32_t size);
 mh_result_t mh_rbsp_deinit(mh_rbsp_p rbsp);
 

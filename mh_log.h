@@ -19,6 +19,17 @@ void mh_log_error(int target, const char *file, const int line, const char *func
         mh_log_error(TARGET_CONSOLE, __FILE__, __LINE__, __FUNCTION__, format, ##__VA_ARGS__); \
     }
 
+
+//#define test_info(format, ...) \
+//    { \
+//        mh_log_info(TARGET_CONSOLE, __FILE__, __LINE__, __FUNCTION__, format, ##__VA_ARGS__); \
+//    }
+
+//#define test_error(format, ...) \
+//    { \
+//        mh_log_error(TARGET_CONSOLE, __FILE__, __LINE__, __FUNCTION__, format, ##__VA_ARGS__); \
+//    }
+
 //#define mh_info(format, ...) mh_log_info(TARGET_CONSOLE, __FILE__, __LINE__, __FUNCTION__, format, ##__VA_ARGS__);
 //#define mh_error(format, ...) mh_log_error(TARGET_CONSOLE, __FILE__, __LINE__, __FUNCTION__, format, ##__VA_ARGS__);
 

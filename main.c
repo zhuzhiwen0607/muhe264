@@ -14,7 +14,7 @@ static void show_usage()
 int main(int argc, const char *argv[])
 {
 
-//    mh_test_main();
+    test_main();
     return 0;
 
     if (argc != 2)

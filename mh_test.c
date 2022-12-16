@@ -308,3 +308,29 @@ void mh_test_main()
 //    test_stream();
 }
 #endif
+
+#include "mh_test.h"
+#include "mh_type.h"
+#include "mh_log.h"
+#include "mh_array.h"
+#include "mh_queue.h"
+#include "mh_list.h"
+
+static void queue_test();
+
+static void queue_test()
+{
+    mh_queue_p q = NULL;
+    mh_int32_t cap = 64;
+    mh_queue_new(&q, cap);
+
+    mh_int32_t space = mh_queue_space(q);
+    SHOULD_EQUAL_INT32(space, 64);
+
+    mh_queue_destroy(&q);
+}
+
+void test_main()
+{
+    queue_test();
+}

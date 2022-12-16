@@ -117,7 +117,7 @@ mh_result_t mh_queue_write(mh_queue_p queue, mh_uint8_t *src, mh_int32_t size)
     queue->end = new_end;
 
 //    mh_int32_t endidx = queue_end_index(queue);
-//    mh_info("queue end index=%d", endidx);
+    mh_info("queue end index=%d", queue_end_index(queue));
 
     return writebytes;
 
@@ -136,8 +136,10 @@ mh_result_t mh_queue_read(mh_queue_p queue, mh_uint8_t *dst, mh_int32_t size)
     else
         readbytes = size;
 
-    mh_int32_t loopback = 0;
-    mh_uint8_t *new_start = dequeue_update_pos(queue, readbytes, &loopback);
+//    mh_int32_t loopback = 0;
+//    mh_uint8_t *new_start = dequeue_update_pos(queue, readbytes, &loopback);
+    mh_bool_t loopback = mh_false;
+    mh_uint8_t *new_start = queue_new_start(queue, readbytes, &loopback);
 
     if (loopback)
     {

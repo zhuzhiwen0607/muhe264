@@ -57,7 +57,10 @@ void mh_log_error(int target, const char *file, const int line, const char *func
 
 
     if (target == TARGET_CONSOLE)
+    {
         printf("ERROR %s\n", buf);
+//        fflush()
+    }
     else
         // todo
         ;

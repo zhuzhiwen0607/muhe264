@@ -39,6 +39,8 @@ static inline mh_result_t enqueue_update_pos(mh_queue_p queue, mh_int32_t size, 
 static inline mh_result_t dequeue_update_pos(mh_queue_p queue, mh_int32_t size, mh_int32_t *loopback);
 static inline mh_uint8_t queue_at(mh_queue_p queue, mh_int32_t i);
 static inline mh_result_t queue_forward(mh_queue_p queue, mh_int32_t i);
+static inline mh_int32_t queue_start_index(mh_queue_p queue);
+static inline mh_int32_t queue_end_index(mh_queue_p queue);
 
 
 static inline mh_bool_t next_bytes_equal(mh_queue_p queue, mh_int32_t n, mh_uint32_t bytes)
@@ -145,7 +147,7 @@ static inline mh_uint8_t* queue_new_start(mh_queue_p queue, mh_int32_t step, mh_
 
     idx = (idx + step) % queue->capacity;
 
-    return (queue->start + idx);
+    return (queue->base + idx);
 }
 
 static inline mh_uint8_t* queue_new_end(mh_queue_p queue, mh_int32_t step, mh_bool_t *loopback)
@@ -162,7 +164,7 @@ static inline mh_uint8_t* queue_new_end(mh_queue_p queue, mh_int32_t step, mh_bo
 
     idx = (idx + step) % queue->capacity;
 
-    return (queue->end + idx);
+    return (queue->base + idx);
 }
 
 
@@ -256,6 +258,19 @@ static inline mh_result_t queue_forward(mh_queue_p queue, mh_int32_t i)
 
     return MH_OK;
 }
+
+static inline mh_int32_t queue_start_index(mh_queue_p queue)
+{
+    assert(queue);
+    return (queue->start - queue->base) % queue->capacity;
+}
+
+static inline mh_int32_t queue_end_index(mh_queue_p queue)
+{
+    assert(queue);
+    return (queue->end - queue->base) % queue->capacity;
+}
+
 
 
 

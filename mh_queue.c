@@ -4,7 +4,7 @@
 #include "mh_queue.h"
 #include "mh_mm.h"
 #include "mh_error.h"
-
+#include "mh_log.h"
 
 static mh_result_t mh_queue_init(mh_queue_p queue, mh_int32_t capacity);
 static mh_result_t mh_queue_deinit(mh_queue_p queue);
@@ -115,6 +115,9 @@ mh_result_t mh_queue_write(mh_queue_p queue, mh_uint8_t *src, mh_int32_t size)
     }
 
     queue->end = new_end;
+
+//    mh_int32_t endidx = queue_end_index(queue);
+//    mh_info("queue end index=%d", endidx);
 
     return writebytes;
 

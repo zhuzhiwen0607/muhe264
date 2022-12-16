@@ -321,18 +321,34 @@ static void queue_test();
 static void queue_test()
 {
     mh_queue_p q = NULL;
-    mh_int32_t cap = 64;
+    mh_int32_t cap = 16;
     mh_queue_new(&q, cap);
 
     mh_int32_t space = mh_queue_space(q);
-    SHOULD_EQUAL_INT(space, 64);
+    SHOULD_EQUAL_INT(space, cap);
 
-    mh_uint8_t a[10] = {0};
+    mh_uint8_t a[8] = {0};
     a[0] = 0x0A;
     a[2] = 0x03;
     a[3] = 0x04;
-    mh_queue_write(q, a, 8);
+    mh_queue_write(q, a, 8);    // 0A 00 03 04 00 00 00 00
     SHOULD_EQUAL_INT(q->start[0], 0x0A);
+    SHOULD_EQUAL_INT(q->start[7], 0x00);
+
+    space = mh_queue_space(q);
+    SHOULD_EQUAL_INT(space, cap - 8);
+
+    mh_uint8_t b[3] = {0};
+    b[0] = 0x10;
+    b[1] = 0x11;
+    b[2] = 0x12;
+    mh_queue_write(q, b, 3);
+    SHOULD_EQUAL_INT(q->start[10], 0x12);
+
+    mh_uint8_t c[5] = {0};
+    c[4] = 0x20;
+    mh_queue_write(q, c, 5);
+    SHOULD_EQUAL_INT(q->start[15], 0x20);
 
 
 

@@ -59,9 +59,9 @@ static mh_result_t mh_queue_init(mh_queue_p queue, mh_int32_t capacity)
 //    if (!(queue->base))
 //        return MH_MM_MALLOC_ERROR;
 
-    mh_malloc(&(queue->base), capacity);
+    mh_malloc(&(queue->base), capacity + 1);
 
-    memset(queue->base, 0x00, capacity);
+    memset(queue->base, 0x00, capacity + 1);
 
     queue->start = queue->base;
     queue->end = queue->base;

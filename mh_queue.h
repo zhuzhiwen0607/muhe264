@@ -143,9 +143,9 @@ static inline mh_uint8_t* queue_new_start(mh_queue_p queue, mh_int32_t step, mh_
     mh_int32_t idx = queue->start - queue->base;
 
     if (loopback)
-        *loopback = (idx + step) / queue->capacity;
+        *loopback = (idx + step) / (queue->capacity + 1);
 
-    idx = (idx + step) % queue->capacity;
+    idx = (idx + step) % (queue->capacity + 1);
 
     return (queue->base + idx);
 }
@@ -160,9 +160,9 @@ static inline mh_uint8_t* queue_new_end(mh_queue_p queue, mh_int32_t step, mh_bo
     mh_int32_t idx = queue->end - queue->base;
 
     if (loopback)
-        *loopback = (idx + step) / queue->capacity;
+        *loopback = (idx + step) / (queue->capacity + 1);
 
-    idx = (idx + step) % queue->capacity;
+    idx = (idx + step) % (queue->capacity + 1);
 
     return (queue->base + idx);
 }
@@ -262,13 +262,13 @@ static inline mh_result_t queue_forward(mh_queue_p queue, mh_int32_t i)
 static inline mh_int32_t queue_start_index(mh_queue_p queue)
 {
     assert(queue);
-    return (queue->start - queue->base) % queue->capacity;
+    return (queue->start - queue->base) % (queue->capacity + 1);
 }
 
 static inline mh_int32_t queue_end_index(mh_queue_p queue)
 {
     assert(queue);
-    return (queue->end - queue->base) % queue->capacity;
+    return (queue->end - queue->base) % (queue->capacity + 1);
 }
 
 

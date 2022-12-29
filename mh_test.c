@@ -318,6 +318,25 @@ void mh_test_main()
 
 static void queue_test();
 
+static void queue_test2()
+{
+    mh_queue_p q = NULL;
+    mh_int32_t cap = 5;
+    mh_queue_new(&q, cap);
+
+    mh_uint8_t a[8] = {0};
+    a[0] = 0x0A;
+    a[1] = 0x00;
+    a[2] = 0x03;
+    a[3] = 0x04;
+    a[4] = 0x10;
+    a[5] = 0x11;
+    a[6] = 0x12;
+    a[7] = 0x13;
+
+    mh_queue_write(q, a, 8);
+}
+
 static void queue_test()
 {
     mh_queue_p q = NULL;
@@ -329,6 +348,7 @@ static void queue_test()
 
     mh_uint8_t a[8] = {0};
     a[0] = 0x0A;
+    a[1] = 0x00;
     a[2] = 0x03;
     a[3] = 0x04;
     mh_queue_write(q, a, 8);    // 0A 00 03 04 00 00 00 00
@@ -342,22 +362,24 @@ static void queue_test()
     b[0] = 0x10;
     b[1] = 0x11;
     b[2] = 0x12;
-    mh_queue_write(q, b, 3);
+    mh_queue_write(q, b, 3);    // 0A 00 03 04 00 00 00 00 10 11 12
     SHOULD_EQUAL_INT(q->start[10], 0x12);
 
     mh_uint8_t c[7] = {0};
     c[4] = 0x20;
     c[5] = 0x21;
-    mh_queue_write(q, c, 7);
+    mh_queue_write(q, c, 7);    // 0A 00 03 04 00 00 00 00 10 11 12 00 00 00 00 20 | 21 00 00
     SHOULD_EQUAL_INT(q->start[15], 0x20);
     SHOULD_NOT_EQUAL_INT(q->start[16], 0x21);
 
     mh_uint8_t d[4] = {0};
-    mh_queue_read(q, d, 4);
+    mh_queue_read(q, d, 4);     //  0A 00 03 04 -> d[]
+                                //  00 00 00 00 10 11 12 00 00 00 00 20 21 00 00
+
     SHOULD_EQUAL_INT(d[0], 0x0A);
-    SHOULD_EQUAL_INT(d[0], 0x00);
-    SHOULD_EQUAL_INT(d[0], 0x03);
-    SHOULD_EQUAL_INT(d[0], 0x04);
+    SHOULD_EQUAL_INT(d[1], 0x00);
+    SHOULD_EQUAL_INT(d[2], 0x03);
+    SHOULD_EQUAL_INT(d[3], 0x04);
 
 
     mh_queue_destroy(&q);
@@ -366,4 +388,5 @@ static void queue_test()
 void test_main()
 {
     queue_test();
+//    queue_test2();
 }

@@ -374,19 +374,212 @@ static void queue_test()
 
     mh_uint8_t d[4] = {0};
     mh_queue_read(q, d, 4);     //  0A 00 03 04 -> d[]
-                                //  00 00 00 00 10 11 12 00 00 00 00 20 21 00 00
+                                //  _ _ _ _ 00 00 00 00 10 11 12 00 00 00 00 20
 
     SHOULD_EQUAL_INT(d[0], 0x0A);
     SHOULD_EQUAL_INT(d[1], 0x00);
     SHOULD_EQUAL_INT(d[2], 0x03);
     SHOULD_EQUAL_INT(d[3], 0x04);
 
+    mh_uint8_t e[2] = {0};
+    e[0] = 0x30;
+    e[1] = 0x31;
+    mh_queue_write(q, e, 2);    // 30 31 _ _ 00 00 00 00 10 11 12 00 00 00 00 20
+    SHOULD_EQUAL_INT(q->start[4], 0x10);
+    SHOULD_EQUAL_INT(q->base[0], 0x30);
+    SHOULD_EQUAL_INT(q->base[1], 0x31);
+
 
     mh_queue_destroy(&q);
 }
 
+static void queue_empty_test()
+{
+    mh_queue_p q = NULL;
+    mh_int32_t cap = 4;
+    mh_queue_new(&q, cap);
+
+    if (queue_empty(q))
+    {
+        mh_info("ok");
+    }
+    else
+    {
+        mh_error("failed");
+    }
+
+    mh_queue_destroy(&q);
+}
+
+static void queue_full_test()
+{
+    mh_queue_p q = NULL;
+    mh_int32_t cap = 4;
+    mh_queue_new(&q, cap);
+
+    mh_uint8_t a[4];
+    a[0] = 0x04;
+    a[1] = 0x03;
+    a[2] = 0x02;
+    a[3] = 0x01;
+    mh_queue_write(q, a, 4);
+
+    if (queue_full(q))
+    {
+        mh_info("ok");
+    }
+    else
+    {
+        mh_error("failed");
+    }
+
+    mh_queue_destroy(&q);
+}
+
+static void queue_at_test()
+{
+    mh_queue_p q = NULL;
+    mh_int32_t cap = 4;
+    mh_queue_new(&q, cap);
+
+    mh_uint8_t a[4];
+    a[0] = 0x04;
+    a[1] = 0x03;
+    a[2] = 0x02;
+    a[3] = 0x01;
+    mh_queue_write(q, a, 4);
+
+    // testcase1
+    mh_uint8_t b0 = queue_at(q, 0);
+    mh_uint8_t b1 = queue_at(q, 1);
+    mh_uint8_t b2 = queue_at(q, 2);
+    mh_uint8_t b3 = queue_at(q, 3);
+    if (b0 == 0x04 && b1 == 0x03 && b2 == 0x02 && b3 == 0x01)
+    {
+        mh_info("ok");
+    }
+    else
+    {
+        mh_error("failed: %x %x %x %x", b0, b1, b2, b3);
+    }
+
+    mh_queue_destroy(&q);
+}
+
+static void queue_write_test()
+{
+    mh_queue_p q = NULL;
+    mh_int32_t cap = 4;
+    mh_queue_new(&q, cap);
+
+    mh_uint8_t a[2];
+    a[0] = 0x10;
+    a[1] = 0x11;
+
+    mh_uint8_t b[1];
+    b[0] = 0x20;
+
+    mh_uint8_t c[2];
+    c[0] = 0x30;
+    c[1] = 0x31;
+
+    // testcase 1
+    mh_queue_write(q, a, sizeof(a) / sizeof(mh_uint8_t));
+    mh_queue_write(q, b, sizeof(b) / sizeof(mh_uint8_t));
+    mh_queue_write(q, c, sizeof(c) / sizeof(mh_uint8_t));
+
+    mh_uint8_t x0 = q->base[0];
+    mh_uint8_t x1 = q->base[1];
+    mh_uint8_t x2 = q->base[2];
+    mh_uint8_t x3 = q->base[3];
+    if (x0 == a[0] && x1 == a[1] && x2 == b[0] && x3 == c[0])
+    {
+        mh_info("ok");
+    }
+    else
+    {
+        mh_error("failed");
+    }
+
+    mh_queue_destroy(&q);
+
+}
+
+static void queue_write_test2()
+{
+    mh_queue_p q = NULL;
+    mh_int32_t cap = 4;
+    mh_queue_new(&q, cap);
+
+    mh_uint8_t a[2];
+    a[0] = 0x10;
+    a[1] = 0x11;
+
+    q->start = q->base;
+    q->end = &(q->base[3]);
+    mh_queue_write(q, a, sizeof(a) / sizeof(mh_uint8_t));
+    if (q->base[0] == 0x00 && q->base[1] == 0x00 && q->base[2] == 0x00 && q->base[3] == a[0] && q->base[4] == 0x00)
+    {
+        mh_info("ok");
+    }
+    else
+    {
+        mh_error("failed: %x %x %x %x", q->base[0], q->base[1], q->base[2], q->base[3]);
+    }
+
+    mh_queue_destroy(&q);
+}
+
+static void queue_write_test3()
+{
+    mh_queue_p q = NULL;
+    mh_int32_t cap = 4;
+    mh_queue_new(&q, cap);
+
+    mh_uint8_t a[6];
+    a[0] = 0x10;
+    a[1] = 0x11;
+    a[2] = 0x12;
+    a[3] = 0x13;
+    a[4] = 0x14;
+    a[5] = 0x15;
+
+    q->start = &(q->base[2]);
+    q->end = &(q->base[3]);
+    mh_queue_write(q, a, sizeof(a) / sizeof(mh_uint8_t));
+    if (q->base[3] == a[0] && q->base[4] == a[1] && q->base[0] == a[2] && q->base[1] == 0x00 && q->base[2] == 0x00)
+    {
+        if (q->end == &(q->base[1]))
+        {
+            mh_info("ok");
+        }
+        else
+        {
+            mh_error("failed: q->end is error");
+        }
+    }
+    else
+    {
+        mh_error("failed: q->base(%x %x %x %x %x) is error",
+                 q->base[0], q->base[1], q->base[2], q->base[3], q->base[4]);
+    }
+
+    mh_queue_destroy(&q);
+}
+
+static void queue_read_test()
+{
+
+}
+
 void test_main()
 {
-    queue_test();
-//    queue_test2();
+
+//    queue_empty_test();
+//    queue_full_test();
+//    queue_at_test();
+//    queue_write_test();
+//    queue_write_test2();
+//    queue_write_test3();
+
 }

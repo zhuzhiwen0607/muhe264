@@ -23,7 +23,7 @@ typedef struct
     mh_uint8_t *nalu_start;
     mh_uint8_t *nalu_end;
     mh_int32_t nalu_size;
-    mh_list_p list;
+    mh_list_p nalu_list;
 }mh_stream_t, *mh_stream_p;
 
 /*

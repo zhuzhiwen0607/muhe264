@@ -20,9 +20,24 @@ static mh_result_t mh_nal_unit(mh_nal_unit_p nalu);
 //static mh_result_t mh_seq_parameter_set_rbsp(mh_nal_unit_p nalu);
 //static mh_result_t mh_seq_parameter_set_data(mh_nal_unit_p nalu);
 //static mh_result_t mh_rbsp_tailing_bits();
-static mh_result_t mh_nal_unit_init(mh_queue_p queue, mh_nal_unit_p nalu, mh_int32_t size);
+
+static mh_result_t mh_nal_unit_init(mh_nal_unit_p nalu, mh_int32_t size);
+//static mh_result_t mh_nal_unit_init(mh_queue_p queue, mh_nal_unit_p nalu, mh_int32_t size);
 static mh_result_t mh_nal_unit_deinit(mh_nal_unit_p nalu);
 
+mh_result_t mh_nal_unit_new(mh_nal_unit_p *nalu, mh_int32_t size)
+{
+    assert(nalu);
+
+    mh_result_t ret = mh_malloc(*nalu, sizeof(mh_nal_unit_t));
+    if (MH_OK != ret)
+        return ret;
+
+    return mh_nal_unit_init(nalu, size);
+}
+
+
+/*
 mh_result_t mh_nal_unit_new(mh_queue_p queue, mh_nal_unit_p *nalu, mh_int32_t size)
 {
     assert(queue);
@@ -35,6 +50,7 @@ mh_result_t mh_nal_unit_new(mh_queue_p queue, mh_nal_unit_p *nalu, mh_int32_t si
     return mh_nal_unit_init(queue, *nalu, size);
 
 }
+*/
 
 mh_result_t mh_nal_unit_destroy(mh_nal_unit_p *nalu)
 {
@@ -56,6 +72,16 @@ mh_void_t mh_nal_unit_main(mh_nal_unit_p nalu)
     mh_nal_unit(nalu);
 }
 
+static mh_result_t mh_nal_unit_init(mh_nal_unit_p nalu, mh_int32_t size)
+{
+    assert(nalu);
+
+    mh_result_t ret = mh_array_new(&(nalu->buf), size);
+    if (MH_OK != ret)
+        return ret;
+}
+
+/*
 static mh_result_t mh_nal_unit_init(mh_queue_p queue, mh_nal_unit_p nalu, mh_int32_t size)
 {
     assert(queue);
@@ -79,6 +105,7 @@ static mh_result_t mh_nal_unit_init(mh_queue_p queue, mh_nal_unit_p nalu, mh_int
 
     return MH_OK;
 }
+*/
 
 static mh_result_t mh_nal_unit_deinit(mh_nal_unit_p nalu)
 {
@@ -163,9 +190,15 @@ static mh_result_t mh_nal_unit(mh_nal_unit_p nalu)
 //    mh_malloc(&(nalu->rbsp), sizeof(mh_rbsp_t));
 //    mh_rbsp_init(nalu->rbsp, nalu->buf->size);
 
-    mh_result_t ret = mh_rbsp_new(&(nalu->rbsp), mh_array_size(nalu->buf));
+    mh_rbsp_p rbsp = NULL;
+    mh_int32_t nalu_size = mh_array_size(nalu->buf);
+    mh_result_t ret = mh_rbsp_new(&rbsp, nalu_size);
     if (MH_OK != ret)
         return ret;
+
+//    mh_result_t ret = mh_rbsp_new(&(nalu->rbsp), mh_array_size(nalu->buf));
+//    if (MH_OK != ret)
+//        return ret;
 
     /*
     nalu->rbsp = malloc(sizeof(mh_array_t));
@@ -210,13 +243,14 @@ static mh_result_t mh_nal_unit(mh_nal_unit_p nalu)
         }
     }
 
-    mh_rbsp_p rbsp = nalu->rbsp;
+//    mh_rbsp_p rbsp = nalu->rbsp;
 
     // for (i = nalUnitHeaderBytes; i < NumBytesInNALunit; i++)
-    for (int i = nal_unit_header_bytes; i < mh_array_size(nalu->buf); i++)
+
+    for (int i = nal_unit_header_bytes; i < nalu_size; i++)
     {
 //        if (i + 2 < nalu->buf->size && next_bits_u(nalu->buf, 24) == 0x000003)
-        if (i + 2 < mh_array_size(nalu->buf) && next_bits_u(nalu->buf, 24) == 0x000003)
+        if (i + 2 < nalu_size && next_bits_u(nalu->buf, 24) == 0x000003)
         {
 //            nalu->rbsp_byte[num_bytes_in_rbsp++] = read_bits(nalu->buf, 8);
 //            nalu->rbsp_byte[num_bytes_in_rbsp++] = read_bits(nalu->buf, 8);
@@ -225,10 +259,15 @@ static mh_result_t mh_nal_unit(mh_nal_unit_p nalu)
 //            nalu->rbsp->size += 2;
 //            nalu->rbsp->bits_size += (8 * 2);
 
-            mh_array_write_u1(rbsp->buf, read_bits_u(nalu->buf, 8));
+            mh_array_push_back(rbsp->buf, read_bits_u(nalu->buf, 8));
             ++num_bytes_in_rbsp;
-            mh_array_write_u1(rbsp->buf, read_bits_u(nalu->buf, 8));
+            mh_array_push_back(rbsp->buf, read_bits_u(nalu->buf, 8));
             ++num_bytes_in_rbsp;
+
+//            mh_array_write_u1(rbsp->buf, read_bits_u(nalu->buf, 8));
+//            ++num_bytes_in_rbsp;
+//            mh_array_write_u1(rbsp->buf, read_bits_u(nalu->buf, 8));
+//            ++num_bytes_in_rbsp;
 
 //            rbsp->buf->start[num_bytes_in_rbsp++] = read_bits_u(nalu->buf, 8);
 //            rbsp->buf->start[num_bytes_in_rbsp++] = read_bits_u(nalu->buf, 8);
@@ -244,8 +283,11 @@ static mh_result_t mh_nal_unit(mh_nal_unit_p nalu)
 //            nalu->rbsp->size += 1;
 //            nalu->rbsp->bits_size += 8;
 
-            mh_array_write_u1(rbsp->buf, read_bits_u(nalu->buf, 8));
+            mh_array_push_back(rbsp->buf, read_bits_u(nalu->buf, 8));
             ++num_bytes_in_rbsp;
+
+//            mh_array_write_u1(rbsp->buf, read_bits_u(nalu->buf, 8));
+//            ++num_bytes_in_rbsp;
 
 //            rbsp->buf->start[num_bytes_in_rbsp++] = read_bits_u(nalu->buf, 8);
 //            rbsp->buf->size += 1;

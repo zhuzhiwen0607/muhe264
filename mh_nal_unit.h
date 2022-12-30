@@ -57,12 +57,29 @@ typedef struct
     mh_uint8_t svc_extension_flag : 1;
     mh_uint8_t avc_3d_extension_flag : 1;
 
+    mh_list_p rbsp_list;
+
 //    mh_array_p rbsp;
 //    mh_uint8_t *rbsp_buf;
-    mh_rbsp_p rbsp;
+//    mh_rbsp_p rbsp;
 }mh_nal_unit_t, *mh_nal_unit_p;
 
-mh_result_t mh_nal_unit_new(mh_queue_p queue, mh_nal_unit_p *nalu, mh_int32_t size);
+/**
+ * @brief mh_nal_unit_new
+ * @param nalu
+ * @param size
+ * @return
+ */
+mh_result_t mh_nal_unit_new(mh_nal_unit_p *nalu, mh_int32_t size);
+
+/**
+ * @brief mh_nal_unit_destroy
+ * @param nalu
+ * @return
+ */
+mh_result_t mh_nal_unit_destroy(mh_nal_unit_p *nalu);
+
+//mh_result_t mh_nal_unit_new(mh_queue_p queue, mh_nal_unit_p *nalu, mh_int32_t size);
 mh_void_t mh_nal_unit_main(mh_nal_unit_p nalu);
 
 #endif // MH_NAL_UNIT_H

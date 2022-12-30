@@ -52,7 +52,7 @@ static mh_result_t mh_stream_init(mh_stream_p stream, mh_int32_t capacity)
     if (MH_OK != ret)
         return ret;
 
-    ret = mh_list_new(&(stream->list));
+    ret = mh_list_new(&(stream->nalu_list));
     if (MH_OK != ret)
         return ret;
 
@@ -80,7 +80,7 @@ static mh_void_t mh_stream_add_nalu(mh_nal_unit_p nalu)
     assert(mh_stream);
     assert(nalu);
 
-    mh_list_push_back(mh_stream->list, nalu->list);
+    mh_list_push_back(mh_stream->nalu_list, nalu->list);
 }
 
 
@@ -112,7 +112,7 @@ static void mh_stream_nal_unit()
         // we must set STREAM_BUF_CAPACITY large enough to restore at least one NAL unit
         // set nal_start
 //        mh_stream_meta->nalustart = buf->start;
-        mh_stream->nalu_start = queue->start;
+//        mh_stream->nalu_start = queue->start;
 
 
 //        while (more_data_in_byte_stream(queue)
@@ -131,14 +131,20 @@ static void mh_stream_nal_unit()
         }
 
         mh_int32_t nalu_size = mh_stream->nalu_size;
-        mh_stream->nalu_end = mh_stream->nalu_start + nalu_size;
+//        mh_stream->nalu_end = mh_stream->nalu_start + nalu_size;
 
         // new nalu_unit
         mh_nal_unit_p nal_unit = NULL;
-        mh_nal_unit_new(mh_stream->buf, &nal_unit, nalu_size);
+//        mh_nal_unit_new(mh_stream->buf, &nal_unit, nalu_size);
+        mh_nal_unit_new(&nal_unit, nalu_size);
 
-        // add nal_unit to mh_stream_meta
-        mh_stream_add_nalu(nal_unit);
+        // copy bytes from queue to nalu
+        mh_queue_read(queue, nal_unit->buf->start, nalu_size);
+//        nal_unit->buf->end = nal_unit->buf->start + nalu_size;
+        mh_array_end_forward(nal_unit->buf, nalu_size);
+
+        // add nal_unit to mh_stream
+        mh_list_push_back(mh_stream->nalu_list, nal_unit->list);
 
         mh_stream->nalu_size = 0;
 

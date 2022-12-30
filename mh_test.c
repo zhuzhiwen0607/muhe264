@@ -633,10 +633,36 @@ static void queue_read_test2()
     mh_queue_destroy(&q);
 
 }
+/*
+static void next_bytes_equal_test()
+{
+    mh_queue_p q = NULL;
+    mh_int32_t cap = 8;
+    mh_queue_new(&q, cap);
 
+    mh_uint8_t a[4];
+    a[0] = 0x10;
+    a[1] = 0x11;
+    a[2] = 0x12;
+    a[3] = 0x13;
+
+    mh_uint32_t byte = 0x10111213;
+
+    mh_queue_write(q, a, sizeof(a) / sizeof(mh_uint8_t));
+
+    if (next_bytes_equal(q, 2, byte))
+    {
+        mh_info("ok");
+    }
+    else
+    {
+        mh_error("failed");
+    }
+
+}
+*/
 void test_main()
 {
-
     queue_empty_test();
     queue_full_test();
     queue_at_test();
@@ -645,5 +671,7 @@ void test_main()
     queue_write_test3();
     queue_read_test();
     queue_read_test2();
+
+
 
 }

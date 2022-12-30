@@ -92,14 +92,17 @@ static void mh_stream_nal_unit()
     for (;;)
     {
         // next_bits( 24 ) != 0x000001 && next_bits( 32 ) != 0x00000001
-        while (!next_bytes_equal(queue, 3, 0x000001) && !next_bytes_equal(queue, 4, 0x00000001))
+//        while (!next_bytes_equal(queue, 3, 0x000001) && !next_bytes_equal(queue, 4, 0x00000001))
+        while ((queue_at(queue, 0) != 0x00 || queue_at(queue, 1) != 0x00 || queue_at(queue, 2) != 0x01)
+               && (queue_at(queue, 0) != 0x00 || queue_at(queue, 1) != 0x00 || queue_at(queue, 2) != 0x00 || queue_at(queue, 3) != 0x01))
         {
             leading_zero_8bits(queue);
             if (more_bytes(queue) < 4)
                 return;
         }
 
-        if (!next_bytes_equal(queue, 3, 0x000001))   // next_bits( 24 ) != 0x000001
+//        if (!next_bytes_equal(queue, 3, 0x000001))   // next_bits( 24 ) != 0x000001
+        if (queue_at(queue, 0) != 0x00 || queue_at(queue, 1) != 0x00 || queue_at(queue, 2) != 0x01)
         {
             zero_byte(queue);   // equal to 0x00
         }
@@ -112,9 +115,11 @@ static void mh_stream_nal_unit()
         mh_stream->nalu_start = queue->start;
 
 
+//        while (more_data_in_byte_stream(queue)
+//               && !next_bytes_equal(queue, 3, 0x000001)
+//               && !next_bytes_equal(queue, 4, 0x00000001))
         while (more_data_in_byte_stream(queue)
-               && !next_bytes_equal(queue, 3, 0x000001)
-               && !next_bytes_equal(queue, 4, 0x00000001))
+               && (queue_at(queue, 0) != 0x00 || queue_at(queue, 1) != 0x00 || queue_at(queue, 2) != 0x01))
         {
             ++(mh_stream->nalu_size);
 

@@ -569,17 +569,81 @@ static void queue_write_test3()
 
 static void queue_read_test()
 {
+    mh_queue_p q = NULL;
+    mh_int32_t cap = 4;
+    mh_queue_new(&q, cap);
+
+    mh_uint8_t a[4];
+    a[0] = 0x10;
+    a[1] = 0x11;
+    a[2] = 0x12;
+    a[3] = 0x13;
+
+    mh_queue_write(q, a, sizeof(a) / sizeof(mh_uint8_t));
+
+    mh_uint8_t r[4];
+    memset(r, 0x00, sizeof(r) / sizeof(mh_uint8_t));
+
+    mh_queue_read(q, r, 4);
+    if (r[0] == a[0] && r[1] == a[1] && r[2] == a[2] && r[3] == a[3])
+    {
+        mh_info("ok");
+    }
+    else
+    {
+        mh_error("failed");
+    }
+
+    mh_queue_destroy(&q);
+}
+
+static void queue_read_test2()
+{
+    mh_queue_p q = NULL;
+    mh_int32_t cap = 4;
+    mh_queue_new(&q, cap);
+
+    mh_uint8_t a[4];
+    a[0] = 0x10;
+    a[1] = 0x11;
+    a[2] = 0x12;
+    a[3] = 0x13;
+
+    q->start = &(q->base[3]);
+    q->end = &(q->base[2]);
+
+    q->base[3] = a[0];
+    q->base[4] = a[1];
+    q->base[0] = a[2];
+    q->base[1] = a[3];
+
+    mh_uint8_t r[4];
+    memset(r, 0x00, sizeof(r) / sizeof(mh_uint8_t));
+    mh_queue_read(q, r, 4);
+
+    if (r[0] == a[0] && r[1] == a[1] && r[2] == a[2] && r[3] == a[3])
+    {
+        mh_info("ok");
+    }
+    else
+    {
+        mh_error("failed: %x %x %x %x", r[0], r[1], r[2], r[3]);
+    }
+
+    mh_queue_destroy(&q);
 
 }
 
 void test_main()
 {
 
-//    queue_empty_test();
-//    queue_full_test();
-//    queue_at_test();
-//    queue_write_test();
-//    queue_write_test2();
-//    queue_write_test3();
+    queue_empty_test();
+    queue_full_test();
+    queue_at_test();
+    queue_write_test();
+    queue_write_test2();
+    queue_write_test3();
+    queue_read_test();
+    queue_read_test2();
 
 }

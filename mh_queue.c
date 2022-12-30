@@ -160,12 +160,18 @@ mh_result_t mh_queue_read(mh_queue_p queue, mh_uint8_t *dst, mh_int32_t size)
 
 //    mh_int32_t loopback = 0;
 //    mh_uint8_t *new_start = dequeue_update_pos(queue, readbytes, &loopback);
-    mh_bool_t loopback = mh_false;
-    mh_uint8_t *new_start = queue_new_start(queue, readbytes, &loopback);
+
+    mh_int32_t start_idx = queue_start_index(queue);
+    mh_int32_t new_start_idx = (start_idx + readbytes) % queue->realsize;
+    mh_bool_t loopback = (start_idx + readbytes) / queue->realsize;
+
+//    mh_bool_t loopback = mh_false;
+//    mh_uint8_t *new_start = queue_new_start(queue, readbytes, &loopback);
 
     if (loopback)
     {
-        mh_int32_t front_halfsize = queue->base + queue->capacity - queue->start;
+        mh_int32_t front_halfsize = queue->realsize - start_idx;
+//        mh_int32_t front_halfsize = queue->base + queue->capacity - queue->start;
         mh_int32_t back_halfsize = readbytes - front_halfsize;
         memcpy(dst, queue->start, front_halfsize);
         memcpy(dst + front_halfsize, queue->base, back_halfsize);
@@ -175,7 +181,8 @@ mh_result_t mh_queue_read(mh_queue_p queue, mh_uint8_t *dst, mh_int32_t size)
         memcpy(dst, queue->start, readbytes);
     }
 
-    queue->start = new_start;
+//    queue->start = new_start;
+    queue->start = queue->base + new_start_idx;
 
     return readbytes;
 
